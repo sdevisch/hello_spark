@@ -1,0 +1,50 @@
+# Scala/SBT specific
+target/
+project/target/
+project/project/target/
+
+# Spark specific
+spark-warehouse/
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# IDE specific
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.metals/
+.bloop/
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Dependency directories
+lib_managed/
+src_managed/
+
+# Assembly JARs (keep these out unless specifically needed)
+*.jar
+!project/bootstrap/
