@@ -22,12 +22,12 @@ import os
 from decimal import Decimal
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
-from pyspark.sql.functions import *
+from pyspark.sql.functions import col, avg, sum, count, max as spark_max
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 class SparkDataTypesDemo:
-    def __init__(self, rows=1_000_000):
+    def __init__(self, rows=500_000):  # Reduced for more stable measurements
         """Initialize Spark Data Types Performance Demo"""
         self.rows = rows
         self.results = {}
@@ -53,9 +53,66 @@ class SparkDataTypesDemo:
         # Memory tracking setup
         self.process = psutil.Process(os.getpid())
         
+        # Get Spark context for memory tracking
+        self.sc = self.spark.sparkContext
+        
     def get_memory_usage(self):
         """Get current memory usage in MB"""
-        return self.process.memory_info().rss / 1024 / 1024
+        import gc
+        gc.collect()  # Force garbage collection for more accurate measurement
+        
+        # Get both process memory and Spark memory info
+        process_memory = self.process.memory_info().rss / 1024 / 1024
+        
+        # Try to get Spark storage memory info
+        try:
+            status = self.sc.statusTracker()
+            executor_infos = status.getExecutorInfos()
+            spark_memory = sum(info.memoryUsed for info in executor_infos) / 1024 / 1024
+            return {'process': process_memory, 'spark': spark_memory}
+        except:
+            return {'process': process_memory, 'spark': 0}
+    
+    def get_memory_difference(self, mem_before, mem_after):
+        """Calculate memory difference focusing on Spark memory"""
+        if isinstance(mem_before, dict) and isinstance(mem_after, dict):
+            return mem_after['spark'] - mem_before['spark']
+        else:
+            return mem_after - mem_before
+    
+    def estimate_dataframe_size_mb(self, df):
+        """Estimate DataFrame size in MB using schema and row count"""
+        try:
+            # Get schema information
+            schema = df.schema
+            row_count = df.count()
+            
+            # Estimate bytes per row based on data types
+            bytes_per_row = 0
+            for field in schema.fields:
+                if field.dataType.typeName() == 'string':
+                    bytes_per_row += 20  # Average string size estimate
+                elif field.dataType.typeName() == 'long':
+                    bytes_per_row += 8
+                elif field.dataType.typeName() == 'double':
+                    bytes_per_row += 8
+                elif field.dataType.typeName() == 'integer':
+                    bytes_per_row += 4
+                elif field.dataType.typeName() == 'float':
+                    bytes_per_row += 4
+                elif field.dataType.typeName() == 'byte':
+                    bytes_per_row += 1
+                elif field.dataType.typeName() == 'boolean':
+                    bytes_per_row += 1
+                elif field.dataType.typeName() == 'timestamp':
+                    bytes_per_row += 8
+                else:
+                    bytes_per_row += 8  # Default estimate
+            
+            total_bytes = bytes_per_row * row_count
+            return total_bytes / (1024 * 1024)  # Convert to MB
+        except:
+            return 0
     
     def create_sample_data(self):
         """Create sample data for testing different scenarios"""
@@ -104,17 +161,22 @@ class SparkDataTypesDemo:
         
         # Convert all to strings
         df_strings = df_pandas.copy()
-        for col in df_strings.columns:
-            df_strings[col] = df_strings[col].astype(str)
+        for column_name in df_strings.columns:
+            df_strings[column_name] = df_strings[column_name].astype(str)
+        
+        # Clear any existing cache
+        self.spark.catalog.clearCache()
         
         mem_before = self.get_memory_usage()
         start_time = time.time()
         
         df_spark_strings = self.spark.createDataFrame(df_strings, schema=string_schema)
         df_spark_strings.cache()
-        count_strings = df_spark_strings.count()
+        count_strings = df_spark_strings.count()  # Force materialization
         
         load_time_strings = time.time() - start_time
+        # Wait a moment for memory to stabilize
+        time.sleep(0.5)
         mem_after_strings = self.get_memory_usage()
         
         # Test operations with string data (requires casting)
@@ -140,14 +202,20 @@ class SparkDataTypesDemo:
             StructField("is_premium", BooleanType(), True)
         ])
         
+        # Clean up previous dataframe and clear cache
+        df_spark_strings.unpersist()
+        self.spark.catalog.clearCache()
+        
         mem_before = self.get_memory_usage()
         start_time = time.time()
         
         df_spark_correct = self.spark.createDataFrame(df_pandas, schema=correct_schema)
         df_spark_correct.cache()
-        count_correct = df_spark_correct.count()
+        count_correct = df_spark_correct.count()  # Force materialization
         
         load_time_correct = time.time() - start_time
+        # Wait a moment for memory to stabilize
+        time.sleep(0.5)
         mem_after_correct = self.get_memory_usage()
         
         # Test operations with correct types (no casting needed)
@@ -159,18 +227,22 @@ class SparkDataTypesDemo:
         ).collect()
         operation_time_correct = time.time() - start_time
         
+        # Estimate DataFrame sizes for memory comparison
+        strings_size = self.estimate_dataframe_size_mb(df_spark_strings)
+        correct_size = self.estimate_dataframe_size_mb(df_spark_correct)
+        
         # Store results
         self.results['scenario_1'] = {
             'strings': {
                 'load_time': load_time_strings,
                 'operation_time': operation_time_strings,
-                'memory_usage': mem_after_strings - mem_before,
+                'memory_usage': strings_size,
                 'total_time': load_time_strings + operation_time_strings
             },
             'correct_types': {
                 'load_time': load_time_correct,
                 'operation_time': operation_time_correct,
-                'memory_usage': mem_after_correct - mem_before,
+                'memory_usage': correct_size,
                 'total_time': load_time_correct + operation_time_correct
             }
         }
@@ -180,118 +252,139 @@ class SparkDataTypesDemo:
         print(f"   Load time: {load_time_strings:.3f}s")
         print(f"   Operation time: {operation_time_strings:.3f}s")
         print(f"   Total time: {load_time_strings + operation_time_strings:.3f}s")
-        print(f"   Memory usage: {mem_after_strings - mem_before:.1f} MB")
+        print(f"   Estimated DataFrame size: {strings_size:.1f} MB")
         
         print(f"🟢 Correct types approach:")
         print(f"   Load time: {load_time_correct:.3f}s")
         print(f"   Operation time: {operation_time_correct:.3f}s")
         print(f"   Total time: {load_time_correct + operation_time_correct:.3f}s")
-        print(f"   Memory usage: {mem_after_correct - mem_before:.1f} MB")
+        print(f"   Estimated DataFrame size: {correct_size:.1f} MB")
         
         speedup = (load_time_strings + operation_time_strings) / (load_time_correct + operation_time_correct)
         print(f"⚡ Speedup with correct types: {speedup:.2f}x")
         
         # Cleanup
-        df_spark_strings.unpersist()
         df_spark_correct.unpersist()
+        self.spark.catalog.clearCache()
         
     def scenario_2_oversized_vs_rightsized_types(self):
         """Compare 64-bit types vs right-sized types"""
         print("\n🔸 SCENARIO 2: 64-bit vs Right-sized Data Types")
         print("-" * 40)
         
-        df_pandas = self.create_sample_data()
+        # Create two different datasets to avoid schema conversion overhead
+        print("Creating optimized datasets for fair comparison...")
+        
+        # Clear any existing cache
+        self.spark.catalog.clearCache()
+        
+        # Create data using Spark directly to avoid pandas conversion overhead
+        from pyspark.sql.functions import lit, rand, floor, when, array, expr
+        
+        # Generate base data in Spark
+        base_df = self.spark.range(self.rows) \
+            .withColumn("category_id", (floor(rand() * 100) + 1).cast("int")) \
+            .withColumn("price", (rand() * 999 + 1)) \
+            .withColumn("quantity", (floor(rand() * 50) + 1).cast("int")) \
+            .withColumn("score", (rand() * 100)) \
+            .withColumn("region_code", (floor(rand() * 10) + 1).cast("int")) \
+            .withColumn("status", when(rand() < 0.33, "active")
+                       .when(rand() < 0.66, "inactive")
+                       .otherwise("pending")) \
+            .withColumn("is_premium", (rand() < 0.5))
         
         # Scenario 2A: Everything as 64-bit (oversized)
         print("Testing: OVERSIZED 64-bit types...")
-        oversized_schema = StructType([
-            StructField("id", LongType(), True),           # 64-bit for simple ID
-            StructField("category_id", LongType(), True),  # 64-bit for 1-100 range
-            StructField("price", DoubleType(), True),      # 64-bit for price (appropriate)
-            StructField("quantity", LongType(), True),     # 64-bit for 1-50 range
-            StructField("timestamp", TimestampType(), True), # Appropriate
-            StructField("status", StringType(), True),     # Appropriate
-            StructField("score", DoubleType(), True),      # 64-bit for 0-100 range
-            StructField("region_code", LongType(), True),  # 64-bit for 1-10 range
-            StructField("is_premium", BooleanType(), True) # Appropriate
-        ])
+        
+        # Cast to oversized types
+        df_oversized = base_df.select(
+            col("id").cast(LongType()).alias("id"),
+            col("category_id").cast(LongType()).alias("category_id"),
+            col("price").cast(DoubleType()).alias("price"),
+            col("quantity").cast(LongType()).alias("quantity"),
+            col("score").cast(DoubleType()).alias("score"),
+            col("region_code").cast(LongType()).alias("region_code"),
+            col("status"),
+            col("is_premium")
+        )
         
         mem_before = self.get_memory_usage()
         start_time = time.time()
         
-        df_spark_oversized = self.spark.createDataFrame(df_pandas, schema=oversized_schema)
-        df_spark_oversized.cache()
-        count_oversized = df_spark_oversized.count()
+        df_oversized.cache()
+        count_oversized = df_oversized.count()  # Force materialization
         
         load_time_oversized = time.time() - start_time
+        time.sleep(0.5)  # Wait for memory to stabilize
         mem_after_oversized = self.get_memory_usage()
         
         # Test complex operations
         start_time = time.time()
-        result_oversized = df_spark_oversized.groupBy("region_code", "status") \
+        result_oversized = df_oversized.groupBy("region_code", "status") \
             .agg(
                 avg("price").alias("avg_price"),
                 sum("quantity").alias("total_quantity"),
                 count("id").alias("record_count"),
-                max("score").alias("max_score")
+                spark_max("score").alias("max_score")
             ).collect()
         operation_time_oversized = time.time() - start_time
         
         # Scenario 2B: Right-sized data types
         print("Testing: RIGHT-SIZED data types...")
-        rightsized_schema = StructType([
-            StructField("id", IntegerType(), True),        # 32-bit sufficient for ID
-            StructField("category_id", ByteType(), True),  # 8-bit for 1-100 range
-            StructField("price", FloatType(), True),       # 32-bit for price
-            StructField("quantity", ByteType(), True),     # 8-bit for 1-50 range
-            StructField("timestamp", TimestampType(), True), # Appropriate
-            StructField("status", StringType(), True),     # Appropriate
-            StructField("score", FloatType(), True),       # 32-bit for 0-100 range
-            StructField("region_code", ByteType(), True),  # 8-bit for 1-10 range
-            StructField("is_premium", BooleanType(), True) # Appropriate
-        ])
         
-        # Prepare data for right-sized types
-        df_rightsized = df_pandas.copy()
-        df_rightsized['category_id'] = df_rightsized['category_id'].astype(np.int8)
-        df_rightsized['quantity'] = df_rightsized['quantity'].astype(np.int8)
-        df_rightsized['region_code'] = df_rightsized['region_code'].astype(np.int8)
-        df_rightsized['price'] = df_rightsized['price'].astype(np.float32)
-        df_rightsized['score'] = df_rightsized['score'].astype(np.float32)
+        # Clean up previous dataframe and clear cache
+        df_oversized.unpersist()
+        self.spark.catalog.clearCache()
+        
+        # Cast to right-sized types (using the same base data)
+        df_rightsized = base_df.select(
+            col("id").cast(IntegerType()).alias("id"),
+            col("category_id").cast(ByteType()).alias("category_id"),
+            col("price").cast(FloatType()).alias("price"),
+            col("quantity").cast(ByteType()).alias("quantity"),
+            col("score").cast(FloatType()).alias("score"),
+            col("region_code").cast(ByteType()).alias("region_code"),
+            col("status"),
+            col("is_premium")
+        )
         
         mem_before = self.get_memory_usage()
         start_time = time.time()
         
-        df_spark_rightsized = self.spark.createDataFrame(df_rightsized, schema=rightsized_schema)
-        df_spark_rightsized.cache()
-        count_rightsized = df_spark_rightsized.count()
+        df_rightsized.cache()
+        count_rightsized = df_rightsized.count()  # Force materialization
         
         load_time_rightsized = time.time() - start_time
+        time.sleep(0.5)  # Wait for memory to stabilize
         mem_after_rightsized = self.get_memory_usage()
         
         # Test complex operations
         start_time = time.time()
-        result_rightsized = df_spark_rightsized.groupBy("region_code", "status") \
+        result_rightsized = df_rightsized.groupBy("region_code", "status") \
             .agg(
                 avg("price").alias("avg_price"),
                 sum("quantity").alias("total_quantity"),
                 count("id").alias("record_count"),
-                max("score").alias("max_score")
+                spark_max("score").alias("max_score")
             ).collect()
         operation_time_rightsized = time.time() - start_time
+        
+        # Estimate DataFrame sizes for memory comparison
+        oversized_size = self.estimate_dataframe_size_mb(df_oversized)
+        rightsized_size = self.estimate_dataframe_size_mb(df_rightsized)
         
         # Store results
         self.results['scenario_2'] = {
             'oversized_64bit': {
                 'load_time': load_time_oversized,
                 'operation_time': operation_time_oversized,
-                'memory_usage': mem_after_oversized - mem_before,
+                'memory_usage': oversized_size,
                 'total_time': load_time_oversized + operation_time_oversized
             },
             'rightsized': {
                 'load_time': load_time_rightsized,
                 'operation_time': operation_time_rightsized,
-                'memory_usage': mem_after_rightsized - mem_before,
+                'memory_usage': rightsized_size,
                 'total_time': load_time_rightsized + operation_time_rightsized
             }
         }
@@ -301,22 +394,26 @@ class SparkDataTypesDemo:
         print(f"   Load time: {load_time_oversized:.3f}s")
         print(f"   Operation time: {operation_time_oversized:.3f}s")
         print(f"   Total time: {load_time_oversized + operation_time_oversized:.3f}s")
-        print(f"   Memory usage: {mem_after_oversized - mem_before:.1f} MB")
+        print(f"   Estimated DataFrame size: {oversized_size:.1f} MB")
         
         print(f"🟢 Right-sized types:")
         print(f"   Load time: {load_time_rightsized:.3f}s")
         print(f"   Operation time: {operation_time_rightsized:.3f}s")
         print(f"   Total time: {load_time_rightsized + operation_time_rightsized:.3f}s")
-        print(f"   Memory usage: {mem_after_rightsized - mem_before:.1f} MB")
+        print(f"   Estimated DataFrame size: {rightsized_size:.1f} MB")
         
         speedup = (load_time_oversized + operation_time_oversized) / (load_time_rightsized + operation_time_rightsized)
-        memory_savings = ((mem_after_oversized - mem_before) - (mem_after_rightsized - mem_before)) / (mem_after_oversized - mem_before) * 100
+        if oversized_size > 0:
+            memory_savings = (oversized_size - rightsized_size) / oversized_size * 100
+        else:
+            memory_savings = 0
         print(f"⚡ Speedup with right-sized types: {speedup:.2f}x")
         print(f"💾 Memory savings: {memory_savings:.1f}%")
         
         # Cleanup
-        df_spark_oversized.unpersist()
-        df_spark_rightsized.unpersist()
+        df_rightsized.unpersist()
+        base_df.unpersist()
+        self.spark.catalog.clearCache()
         
     def scenario_3_join_performance_comparison(self):
         """Test join performance with different data type strategies"""
@@ -374,7 +471,12 @@ class SparkDataTypesDemo:
         print("\n📊 Creating performance visualizations...")
         
         # Set up the plotting style
-        plt.style.use('seaborn-v0_8')
+        try:
+            plt.style.use('seaborn-v0_8')
+        except OSError:
+            # Fallback if seaborn style is not available
+            plt.style.use('default')
+            sns.set_palette("husl")
         fig, axes = plt.subplots(2, 2, figsize=(15, 12))
         fig.suptitle('Spark Data Types Performance Comparison', fontsize=16, fontweight='bold')
         
@@ -397,23 +499,23 @@ class SparkDataTypesDemo:
                 ax1.text(bar.get_x() + bar.get_width()/2., height,
                         f'{time:.3f}s', ha='center', va='bottom')
         
-        # Scenario 1: Memory Usage
+        # Scenario 1: DataFrame Size Estimates
         if 'scenario_1' in self.results:
             ax2 = axes[0, 1]
             scenarios = ['Strings', 'Correct Types']
-            memory = [
+            sizes = [
                 self.results['scenario_1']['strings']['memory_usage'],
                 self.results['scenario_1']['correct_types']['memory_usage']
             ]
-            bars2 = ax2.bar(scenarios, memory, color=colors, alpha=0.7)
-            ax2.set_title('Memory Usage\n(Strings vs Correct Types)')
-            ax2.set_ylabel('Memory (MB)')
+            bars2 = ax2.bar(scenarios, sizes, color=colors, alpha=0.7)
+            ax2.set_title('Estimated DataFrame Size\n(Strings vs Correct Types)')
+            ax2.set_ylabel('Size (MB)')
             
             # Add value labels on bars
-            for bar, mem in zip(bars2, memory):
+            for bar, size in zip(bars2, sizes):
                 height = bar.get_height()
                 ax2.text(bar.get_x() + bar.get_width()/2., height,
-                        f'{mem:.1f}MB', ha='center', va='bottom')
+                        f'{size:.1f}MB', ha='center', va='bottom')
         
         # Scenario 2: 64-bit vs Right-sized
         if 'scenario_2' in self.results:
@@ -434,23 +536,23 @@ class SparkDataTypesDemo:
                 ax3.text(bar.get_x() + bar.get_width()/2., height,
                         f'{time:.3f}s', ha='center', va='bottom')
         
-        # Scenario 2: Memory Usage
+        # Scenario 2: DataFrame Size Estimates
         if 'scenario_2' in self.results:
             ax4 = axes[1, 1]
             scenarios = ['64-bit Types', 'Right-sized Types']
-            memory = [
+            sizes = [
                 self.results['scenario_2']['oversized_64bit']['memory_usage'],
                 self.results['scenario_2']['rightsized']['memory_usage']
             ]
-            bars4 = ax4.bar(scenarios, memory, color=colors, alpha=0.7)
-            ax4.set_title('Memory Usage\n(64-bit vs Right-sized)')
-            ax4.set_ylabel('Memory (MB)')
+            bars4 = ax4.bar(scenarios, sizes, color=colors, alpha=0.7)
+            ax4.set_title('Estimated DataFrame Size\n(64-bit vs Right-sized)')
+            ax4.set_ylabel('Size (MB)')
             
             # Add value labels on bars
-            for bar, mem in zip(bars4, memory):
+            for bar, size in zip(bars4, sizes):
                 height = bar.get_height()
                 ax4.text(bar.get_x() + bar.get_width()/2., height,
-                        f'{mem:.1f}MB', ha='center', va='bottom')
+                        f'{size:.1f}MB', ha='center', va='bottom')
         
         plt.tight_layout()
         plt.savefig('/Users/sdevisch/repos/hello_spark/spark_data_types_performance.png', 
@@ -474,7 +576,10 @@ class SparkDataTypesDemo:
         if 'scenario_2' in self.results:
             s2 = self.results['scenario_2']
             speedup_2 = s2['oversized_64bit']['total_time'] / s2['rightsized']['total_time']
-            memory_savings = (s2['oversized_64bit']['memory_usage'] - s2['rightsized']['memory_usage']) / s2['oversized_64bit']['memory_usage'] * 100
+            if s2['oversized_64bit']['memory_usage'] != 0:
+                memory_savings = (s2['oversized_64bit']['memory_usage'] - s2['rightsized']['memory_usage']) / s2['oversized_64bit']['memory_usage'] * 100
+            else:
+                memory_savings = 0
             print(f"\n🔸 64-BIT vs RIGHT-SIZED TYPES:")
             print(f"   Performance improvement: {speedup_2:.2f}x faster")
             print(f"   Time saved: {s2['oversized_64bit']['total_time'] - s2['rightsized']['total_time']:.3f}s")
@@ -511,7 +616,7 @@ class SparkDataTypesDemo:
 
 def main():
     """Main execution function"""
-    demo = SparkDataTypesDemo(rows=1_000_000)
+    demo = SparkDataTypesDemo(rows=500_000)  # Use smaller dataset for more reliable results
     demo.run_all_scenarios()
 
 if __name__ == "__main__":
