@@ -6,7 +6,10 @@ py4j>=0.10.9.7
 jupyter>=1.0.0
 notebook>=6.5.4
 
-# Optional: For data analysis and visualization
+# Required: For data analysis and Arrow serialization
 pandas>=1.5.0
+pyarrow>=21.0.0
+
+# Optional: For visualization
 matplotlib>=3.6.0
 seaborn>=0.12.0
