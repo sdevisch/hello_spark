@@ -7,26 +7,25 @@ Main guidance:
 
 Then, the details: conversion times, compute-only comparisons, and serialization hotspots.
 
-### Files
-- `05_frameworks/10_framework_xbeta_cashflows.py`
-- `05_frameworks/11_comprehensive_performance_benchmark.py`
-- `05_frameworks/12_comprehensive_framework_comparison.py`
-- `05_frameworks/13_numbox_dag_demo.py`
-- `05_frameworks/14_numbox_dynamic_dag_demo.py`
+### Files (conclusion → supporting → appendix)
+- `05_frameworks/01_frameworks_conclusion.py`
+- `05_frameworks/02_frameworks_benchmark.py`
+- `05_frameworks/03_framework_xbeta_cashflows.py`
+- `05_frameworks/04_numbox_dag_demo.py` (appendix)
+- `05_frameworks/05_numbox_dynamic_dag_demo.py` (appendix)
 
 ### Generated outputs
-- `docs/generated/05_frameworks_xbeta_cashflows_output.md`
-- `docs/generated/05_frameworks_benchmark_output.md`
-- `docs/generated/05_frameworks_comparison_output.md`
-- `docs/generated/13_numbox_dag_demo.md`
-- `docs/generated/14_numbox_dynamic_dag_demo.md`
+- `docs/generated/01_frameworks_conclusion.md`
+- `docs/generated/02_frameworks_benchmark.md`
+- `docs/generated/03_framework_xbeta_cashflows.md`
+- `docs/generated/04_numbox_dag_demo.md`
+- `docs/generated/05_numbox_dynamic_dag_demo.md`
 
 ### What they cover
-- Panel dataset with per-entity features, xbeta, cashflows, and rolling windows
-- End-to-end benchmarks across Spark, pandas, NumPy, and Numba
-- Arrow impact on conversion speed and total pipeline time
-- Numbox DAG demo: building a DAG of typed JIT kernels using Numbox `Node`, `Work`, and `Proxy` to structure complex pipelines and compare against NumPy/Numba
-- Numbox Dynamic DAG demo: runtime reconfiguration of feature graph (varying transforms and degrees per micro-batch), showcasing Proxy caching and Node type-erased dependencies
+- Overall conclusion and decision framework (01)
+- Supporting benchmarks and breakdowns (02)
+- Case study: panel xbeta and cashflows (03)
+- Appendix: Numbox DAG demos (04–05)
 
 ### Typical performance hierarchy (may vary by workload)
 - Jitted NumPy (Numba) and NumPy are fastest for pure numerical array kernels when data fits in memory

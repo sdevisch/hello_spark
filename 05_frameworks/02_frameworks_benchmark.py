@@ -545,8 +545,8 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/11_comprehensive_performance_benchmark.md",
-            title="Frameworks: Comprehensive performance benchmark",
+            markdown_path="docs/generated/02_frameworks_benchmark.md",
+            title="Frameworks: Benchmark (supporting details)",
             main_callable=main,
         )
     else:

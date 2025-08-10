@@ -686,8 +686,8 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/13_numbox_dag_demo.md",
-            title="Frameworks: Numbox DAG demo (NumPy, Numba, Numbox)",
+            markdown_path="docs/generated/04_numbox_dag_demo.md",
+            title="Frameworks: Numbox DAG demo (appendix)",
             main_callable=main,
         )
     else:

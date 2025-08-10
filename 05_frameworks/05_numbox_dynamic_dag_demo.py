@@ -427,8 +427,8 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/14_numbox_dynamic_dag_demo.md",
-            title="Frameworks: Numbox Dynamic DAG demo (reconfigurable pipelines)",
+            markdown_path="docs/generated/05_numbox_dynamic_dag_demo.md",
+            title="Frameworks: Numbox Dynamic DAG demo (appendix)",
             main_callable=main,
         )
     else:
