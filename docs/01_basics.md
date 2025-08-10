@@ -1,6 +1,6 @@
-## Basics (conclusion first)
+## Basics (read last)
 
-Start with the DataFrame API and built-in functions; use the Spark UI to see what actually runs. RDDs are useful to know, but DataFrames are the default for ergonomics and performance.
+Scope: essential concepts only. Use DataFrames and built-ins; RDDs for historical context. For decisions, see Frameworks first.
 
 This part introduces core Spark concepts with a single Python script: `01_basics/01_hello_world_python.py`.
 

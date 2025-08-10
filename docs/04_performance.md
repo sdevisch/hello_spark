@@ -1,6 +1,6 @@
-## Performance (conclusion first)
+## Performance (supporting detail)
 
-Use columnar formats (Parquet), native functions over Python UDFs, cache wisely, size partitions to hardware, and broadcast small lookups. These choices minimize I/O and JVM↔Python serialization.
+Scope: cross-cutting practices that make Frameworks’ conclusion true in practice. Not a replacement for profiling or Serialization mechanics.
 
 This part demonstrates common performance bottlenecks and fixes.
 

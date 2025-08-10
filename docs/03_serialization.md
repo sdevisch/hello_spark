@@ -1,6 +1,6 @@
-## Serialization (conclusion first)
+## Serialization (mechanics)
 
-Prefer native Spark functions. When moving to pandas, enable Arrow. Once in pandas/NumPy, keep work vectorized and avoid Python loops and `.tolist()`. Cross the JVM↔Python boundary only when necessary.
+Scope: how and where serialization happens; how to avoid unnecessary boundaries. Decisions live in Frameworks; performance heuristics in Performance.
 
 This part contains four scripts that show where serialization happens and how to minimize it.
 

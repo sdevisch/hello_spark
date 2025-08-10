@@ -1,4 +1,4 @@
-## Frameworks: Start with the conclusion
+## Frameworks: Start with the conclusion (read first)
 
 Main guidance:
 
@@ -15,7 +15,11 @@ When NumPy/Numba shine:
 - Numeric kernels on dense arrays where vectorization or JIT loops dominate total time
 - You’ve profiled, identified a hotspot, and can isolate it as a pure numeric kernel
 
-Then, the details: conversion times, compute-only comparisons, and serialization hotspots.
+Structure:
+- Conclusion and decision criteria (this page)
+- Supporting benchmarks (Performance)
+- Mechanics (Serialization)
+- Tooling (UI)
 
 ### Files (conclusion → supporting → appendix)
 - `01_frameworks/01_frameworks_conclusion.py`
