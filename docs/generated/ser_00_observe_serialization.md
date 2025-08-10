@@ -1,11 +1,16 @@
 # Serialization 00: Using explain() and diagnostics
 
-Generated: 2025-08-10 16:29 UTC
+Generated: 2025-08-10 16:54 UTC
+
+## Scope
+
+Observe where Python shows up (explain/UI) and how to spot serialization.
 
 ## Console output
 
 ```text
 🔍 Starting Serialization Observation Demo...
+📚 Docs index: docs/index.md
 🔍 OBSERVING SERIALIZATION IN SPARK
 ==================================================
 🌐 Spark UI: http://localhost:4040
@@ -21,23 +26,23 @@ Generated: 2025-08-10 16:29 UTC
 📊 Execution Plan:
 == Parsed Logical Plan ==
 'Project ['id, ('value * 2) AS doubled#7]
-+- Project [id#0L, cast((rand(-8354547849653677406) * cast(100 as double)) as int) AS value#2, CASE WHEN ((id#0L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#3]
++- Project [id#0L, cast((rand(-958240777700817968) * cast(100 as double)) as int) AS value#2, CASE WHEN ((id#0L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#3]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Analyzed Logical Plan ==
 id: bigint, doubled: int
 Project [id#0L, (value#2 * 2) AS doubled#7]
-+- Project [id#0L, cast((rand(-8354547849653677406) * cast(100 as double)) as int) AS value#2, CASE WHEN ((id#0L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#3]
++- Project [id#0L, cast((rand(-958240777700817968) * cast(100 as double)) as int) AS value#2, CASE WHEN ((id#0L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#3]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Optimized Logical Plan ==
 Project [id#0L, (value#2 * 2) AS doubled#7]
-+- Project [id#0L, cast((rand(-8354547849653677406) * 100.0) as int) AS value#2]
++- Project [id#0L, cast((rand(-958240777700817968) * 100.0) as int) AS value#2]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Physical Plan ==
 *(1) Project [id#0L, (value#2 * 2) AS doubled#7]
-+- *(1) Project [id#0L, cast((rand(-8354547849653677406) * 100.0) as int) AS value#2]
++- *(1) Project [id#0L, cast((rand(-958240777700817968) * 100.0) as int) AS value#2]
    +- *(1) Range (0, 50000, step=1, splits=11)
 
 
@@ -47,25 +52,25 @@ Project [id#0L, (value#2 * 2) AS doubled#7]
 📊 Execution Plan:
 == Parsed Logical Plan ==
 'Aggregate ['category], ['category, avg('value) AS avg_value#14]
-+- Project [id#0L, cast((rand(-8354547849653677406) * cast(100 as double)) as int) AS value#2, CASE WHEN ((id#0L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#3]
++- Project [id#0L, cast((rand(-958240777700817968) * cast(100 as double)) as int) AS value#2, CASE WHEN ((id#0L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#3]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Analyzed Logical Plan ==
 category: string, avg_value: double
 Aggregate [category#3], [category#3, avg(value#2) AS avg_value#14]
-+- Project [id#0L, cast((rand(-8354547849653677406) * cast(100 as double)) as int) AS value#2, CASE WHEN ((id#0L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#3]
++- Project [id#0L, cast((rand(-958240777700817968) * cast(100 as double)) as int) AS value#2, CASE WHEN ((id#0L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#3]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Optimized Logical Plan ==
 Aggregate [category#3], [category#3, avg(value#2) AS avg_value#14]
-+- Project [cast((rand(-8354547849653677406) * 100.0) as int) AS value#2, CASE WHEN ((id#0L % 2) = 0) THEN even ELSE odd END AS category#3]
++- Project [cast((rand(-958240777700817968) * 100.0) as int) AS value#2, CASE WHEN ((id#0L % 2) = 0) THEN even ELSE odd END AS category#3]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Physical Plan ==
 *(2) HashAggregate(keys=[category#3], functions=[avg(value#2)], output=[category#3, avg_value#14])
 +- Exchange hashpartitioning(category#3, 200), ENSURE_REQUIREMENTS, [plan_id=29]
    +- *(1) HashAggregate(keys=[category#3], functions=[partial_avg(value#2)], output=[category#3, sum#19, count#20L])
-      +- *(1) Project [cast((rand(-8354547849653677406) * 100.0) as int) AS value#2, CASE WHEN ((id#0L % 2) = 0) THEN even ELSE odd END AS category#3]
+      +- *(1) Project [cast((rand(-958240777700817968) * 100.0) as int) AS value#2, CASE WHEN ((id#0L % 2) = 0) THEN even ELSE odd END AS category#3]
          +- *(1) Range (0, 50000, step=1, splits=11)
 
 
@@ -82,23 +87,23 @@ Aggregate [category#3], [category#3, avg(value#2) AS avg_value#14]
 🔍 Native Spark function execution plan:
 == Parsed Logical Plan ==
 'Project ['id, ('value * 2) AS doubled#30]
-+- Project [id#23L, cast((rand(-2868248979620053738) * cast(100 as double)) as int) AS value#25, CASE WHEN ((id#23L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#26]
++- Project [id#23L, cast((rand(1939090698594385202) * cast(100 as double)) as int) AS value#25, CASE WHEN ((id#23L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#26]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Analyzed Logical Plan ==
 id: bigint, doubled: int
 Project [id#23L, (value#25 * 2) AS doubled#30]
-+- Project [id#23L, cast((rand(-2868248979620053738) * cast(100 as double)) as int) AS value#25, CASE WHEN ((id#23L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#26]
++- Project [id#23L, cast((rand(1939090698594385202) * cast(100 as double)) as int) AS value#25, CASE WHEN ((id#23L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#26]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Optimized Logical Plan ==
 Project [id#23L, (value#25 * 2) AS doubled#30]
-+- Project [id#23L, cast((rand(-2868248979620053738) * 100.0) as int) AS value#25]
++- Project [id#23L, cast((rand(1939090698594385202) * 100.0) as int) AS value#25]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Physical Plan ==
 *(1) Project [id#23L, (value#25 * 2) AS doubled#30]
-+- *(1) Project [id#23L, cast((rand(-2868248979620053738) * 100.0) as int) AS value#25]
++- *(1) Project [id#23L, cast((rand(1939090698594385202) * 100.0) as int) AS value#25]
    +- *(1) Range (0, 50000, step=1, splits=11)
 
 
@@ -106,25 +111,25 @@ Project [id#23L, (value#25 * 2) AS doubled#30]
 🔍 Python UDF execution plan:
 == Parsed Logical Plan ==
 'Project ['id, python_double('value)#33 AS doubled#34]
-+- Project [id#23L, cast((rand(-2868248979620053738) * cast(100 as double)) as int) AS value#25, CASE WHEN ((id#23L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#26]
++- Project [id#23L, cast((rand(1939090698594385202) * cast(100 as double)) as int) AS value#25, CASE WHEN ((id#23L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#26]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Analyzed Logical Plan ==
 id: bigint, doubled: int
 Project [id#23L, python_double(value#25)#33 AS doubled#34]
-+- Project [id#23L, cast((rand(-2868248979620053738) * cast(100 as double)) as int) AS value#25, CASE WHEN ((id#23L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#26]
++- Project [id#23L, cast((rand(1939090698594385202) * cast(100 as double)) as int) AS value#25, CASE WHEN ((id#23L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#26]
    +- Range (0, 50000, step=1, splits=Some(11))
 
 == Optimized Logical Plan ==
 Project [id#23L, pythonUDF0#37 AS doubled#34]
 +- BatchEvalPython [python_double(value#25)#33], [pythonUDF0#37]
-   +- Project [id#23L, cast((rand(-2868248979620053738) * 100.0) as int) AS value#25]
+   +- Project [id#23L, cast((rand(1939090698594385202) * 100.0) as int) AS value#25]
       +- Range (0, 50000, step=1, splits=Some(11))
 
 == Physical Plan ==
 *(2) Project [id#23L, pythonUDF0#37 AS doubled#34]
 +- BatchEvalPython [python_double(value#25)#33], [pythonUDF0#37]
-   +- *(1) Project [id#23L, cast((rand(-2868248979620053738) * 100.0) as int) AS value#25]
+   +- *(1) Project [id#23L, cast((rand(1939090698594385202) * 100.0) as int) AS value#25]
       +- *(1) Range (0, 50000, step=1, splits=11)
 
 
@@ -141,7 +146,7 @@ Project [id#23L, pythonUDF0#37 AS doubled#34]
 
 🚀 1. Native Spark function:
    Execution plan with timing:
-   ✅ Processed 100,000 rows in 0.760s
+   ✅ Processed 100,000 rows in 0.774s
 == Physical Plan ==
 * Project (3)
 +- * Project (2)
@@ -153,7 +158,7 @@ Output [1]: [id#38L]
 Arguments: Range (0, 100000, step=1, splits=Some(11))
 
 (2) Project [codegen id : 1]
-Output [2]: [id#38L, cast((rand(903639778804317128) * 100.0) as int) AS value#40]
+Output [2]: [id#38L, cast((rand(-7326776541570372847) * 100.0) as int) AS value#40]
 Input [1]: [id#38L]
 
 (3) Project [codegen id : 1]
@@ -164,7 +169,7 @@ Input [2]: [id#38L, value#40]
 
 🐍 2. Python UDF:
    Execution plan with timing:
-   ✅ Processed 100,000 rows in 0.059s
+   ✅ Processed 100,000 rows in 0.063s
 == Physical Plan ==
 * Project (4)
 +- BatchEvalPython (3)
@@ -177,7 +182,7 @@ Output [1]: [id#38L]
 Arguments: Range (0, 100000, step=1, splits=Some(11))
 
 (2) Project [codegen id : 1]
-Output [2]: [id#38L, cast((rand(903639778804317128) * 100.0) as int) AS value#40]
+Output [2]: [id#38L, cast((rand(-7326776541570372847) * 100.0) as int) AS value#40]
 Input [1]: [id#38L]
 
 (3) BatchEvalPython
@@ -191,8 +196,8 @@ Input [3]: [id#38L, value#40, pythonUDF0#66]
 
 
 📈 PERFORMANCE COMPARISON:
-   Native Spark: 0.760s
-   Python UDF:   0.059s
+   Native Spark: 0.774s
+   Python UDF:   0.063s
    Speedup:      0.1x faster with native
 
 ==================================================
@@ -208,7 +213,7 @@ Input [3]: [id#38L, value#40, pythonUDF0#66]
 +- Project [id#67L, value#69, category_python#75, (value#69 * value#69) AS value_squared#79]
    +- Project [id#67L, value#69, categorize_value(value#69)#74 AS category_python#75]
       +- Filter (value#69 > 10)
-         +- Project [id#67L, cast((rand(2701204413590172072) * cast(100 as double)) as int) AS value#69, CASE WHEN ((id#67L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#70]
+         +- Project [id#67L, cast((rand(1724659738247840045) * cast(100 as double)) as int) AS value#69, CASE WHEN ((id#67L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#70]
             +- Range (0, 80000, step=1, splits=Some(11))
 
 == Analyzed Logical Plan ==
@@ -217,7 +222,7 @@ Aggregate [category_python#75], [category_python#75, avg(value#69) AS avg_value#
 +- Project [id#67L, value#69, category_python#75, (value#69 * value#69) AS value_squared#79]
    +- Project [id#67L, value#69, categorize_value(value#69)#74 AS category_python#75]
       +- Filter (value#69 > 10)
-         +- Project [id#67L, cast((rand(2701204413590172072) * cast(100 as double)) as int) AS value#69, CASE WHEN ((id#67L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#70]
+         +- Project [id#67L, cast((rand(1724659738247840045) * cast(100 as double)) as int) AS value#69, CASE WHEN ((id#67L % cast(2 as bigint)) = cast(0 as bigint)) THEN even ELSE odd END AS category#70]
             +- Range (0, 80000, step=1, splits=Some(11))
 
 == Optimized Logical Plan ==
@@ -225,7 +230,7 @@ Aggregate [category_python#75], [category_python#75, avg(value#69) AS avg_value#
 +- Project [value#69, pythonUDF0#98 AS category_python#75, (value#69 * value#69) AS value_squared#79]
    +- BatchEvalPython [categorize_value(value#69)#74], [pythonUDF0#98]
       +- Filter (isnotnull(value#69) AND (value#69 > 10))
-         +- Project [cast((rand(2701204413590172072) * 100.0) as int) AS value#69]
+         +- Project [cast((rand(1724659738247840045) * 100.0) as int) AS value#69]
             +- Range (0, 80000, step=1, splits=Some(11))
 
 == Physical Plan ==
@@ -235,16 +240,16 @@ Aggregate [category_python#75], [category_python#75, avg(value#69) AS avg_value#
       +- *(2) Project [value#69, pythonUDF0#98 AS category_python#75, (value#69 * value#69) AS value_squared#79]
          +- BatchEvalPython [categorize_value(value#69)#74], [pythonUDF0#98]
             +- *(1) Filter (isnotnull(value#69) AND (value#69 > 10))
-               +- *(1) Project [cast((rand(2701204413590172072) * 100.0) as int) AS value#69]
+               +- *(1) Project [cast((rand(1724659738247840045) * 100.0) as int) AS value#69]
                   +- *(1) Range (0, 80000, step=1, splits=11)
 
 
-⏱️  Execution time: 1.181s
+⏱️  Execution time: 1.157s
 
 🔍 Results:
-   Row(category_python='low', avg_value=17.511861394935583, avg_squared=322.81439360284315, count=11255)
-   Row(category_python='high', avg_value=86.99292949553706, avg_squared=7619.992628623007, count=19942)
-   Row(category_python='medium', avg_value=49.54276085871193, avg_squared=2664.1510983524713, count=40060)
+   Row(category_python='low', avg_value=17.521958562068356, avg_squared=323.28572693465554, count=11294)
+   Row(category_python='high', avg_value=87.0208312468703, avg_squared=7624.9532298447675, count=19970)
+   Row(category_python='medium', avg_value=49.49725529514977, avg_squared=2656.324777541045, count=39895)
 
 💡 SERIALIZATION IDENTIFICATION:
    1. Look for 'BatchEvalPython' in the plan
@@ -262,7 +267,7 @@ Aggregate [category_python#75], [category_python#75, avg(value#69) AS avg_value#
    📊 Go to 'SQL' tab to see query details
    🔍 Look for stages with 'Python' in the description
 
-✅ Processed 150,000 rows in 0.070s
+✅ Processed 150,000 rows in 0.081s
 
 🔍 WHAT TO LOOK FOR IN SPARK UI:
    1. 'SQL' tab → Click on the query
@@ -279,12 +284,12 @@ Aggregate [category_python#75], [category_python#75, avg(value#69) AS avg_value#
 📊 Tool 1: explain('cost') - shows cost-based optimization:
 == Optimized Logical Plan ==
 Filter (isnotnull(value#133) AND (value#133 > 50)), Statistics(sizeInBytes=976.6 KiB)
-+- Project [id#131L, cast((rand(-6847998291744577772) * 100.0) as int) AS value#133], Statistics(sizeInBytes=976.6 KiB)
++- Project [id#131L, cast((rand(-2394778090245226580) * 100.0) as int) AS value#133], Statistics(sizeInBytes=976.6 KiB)
    +- Range (0, 100000, step=1, splits=Some(11)), Statistics(sizeInBytes=781.3 KiB, rowCount=1.00E+5)
 
 == Physical Plan ==
 *(1) Filter (isnotnull(value#133) AND (value#133 > 50))
-+- *(1) Project [id#131L, cast((rand(-6847998291744577772) * 100.0) as int) AS value#133]
++- *(1) Project [id#131L, cast((rand(-2394778090245226580) * 100.0) as int) AS value#133]
    +- *(1) Range (0, 100000, step=1, splits=11)
 
 
@@ -294,22 +299,22 @@ Filter (isnotnull(value#133) AND (value#133 > 50)), Statistics(sizeInBytes=976.6
 +---+-------+
 | id|doubled|
 +---+-------+
-|  0|     88|
-|  1|    156|
-|  2|    188|
-|  3|    122|
-|  4|     74|
+|  0|    102|
+|  1|    106|
+|  2|     86|
+|  3|    158|
+|  4|    160|
 +---+-------+
 only showing top 5 rows
 
 
-⏱️  show() time: 0.115s
-   collect() time: 0.094s
+⏱️  show() time: 0.121s
+   collect() time: 0.076s
 
 📊 Tool 3: Cache impact on UDF performance:
-   First access (cache miss): 0.212s
-   Second access (cache hit): 0.024s
-   Cache speedup: 9.0x
+   First access (cache miss): 0.256s
+   Second access (cache hit): 0.022s
+   Cache speedup: 11.4x
 
 ==================================================
 🎉 ALL SERIALIZATION OBSERVATION DEMOS COMPLETED!

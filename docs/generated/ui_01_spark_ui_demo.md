@@ -1,15 +1,20 @@
 # UI: Spark UI demo (jobs and exploration)
 
-Generated: 2025-08-10 16:29 UTC
+Generated: 2025-08-10 16:55 UTC
+
+## Scope
+
+Tooling: use the Spark UI to connect code to execution (jobs/stages/SQL).
 
 ## Console output
 
 ```text
 🚀 Starting Spark session for UI exploration...
+📚 Docs index: docs/index.md
 ============================================================
 🎉 Spark Session Started Successfully!
 🌐 Spark UI: http://localhost:4040
-🆔 Application ID: local-1754843357593
+🆔 Application ID: local-1754844920041
 📊 Spark Version: 3.5.0
 ============================================================
 📊 Creating sample jobs for UI demonstration...
