@@ -1,6 +1,10 @@
-# Hello World with Apache Spark
+# Hello Spark: A practical guide with runnable examples and summaries
 
-This repository contains Hello World examples for Apache Spark in both Python (PySpark) and Scala. These examples demonstrate basic Spark operations including RDD transformations, actions, DataFrame operations, and SQL queries.
+This repository is an end-to-end learning path for Apache Spark and related Python tooling. Each part has:
+- A runnable script that demonstrates the concepts
+- A concise markdown overview in `docs/` so you can learn without running code
+
+Start with the overview docs, then optionally run the scripts.
 
 ## Prerequisites
 
@@ -31,7 +35,7 @@ This repository contains Hello World examples for Apache Spark in both Python (P
    pip install -r requirements.txt
    ```
 
-3. **Run the first Python example**:
+3. **Run the first Python example (optional)**:
    ```bash
    python 01_basics/01_hello_world_python.py
    ```
@@ -40,6 +44,12 @@ This repository contains Hello World examples for Apache Spark in both Python (P
 
 - `01_basics/`
   - `01_hello_world_python.py` — Basic RDD, DataFrame, and SQL examples
+- `docs/`
+  - `01_basics.md` — overview
+  - `02_ui.md` — overview
+  - `03_serialization.md` — overview
+  - `04_performance.md` — overview
+  - `05_frameworks.md` — overview
 - `02_ui/`
   - `03_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
 - `03_serialization/`
@@ -58,14 +68,17 @@ This repository contains Hello World examples for Apache Spark in both Python (P
 ## Recommended run sequence (Python)
 
 1. Basics
+   - Read: `docs/01_basics.md`
    ```bash
    python 01_basics/01_hello_world_python.py
    ```
 2. Spark UI
+   - Read: `docs/02_ui.md`
    ```bash
    python 02_ui/03_spark_ui_demo.py
    ```
 3. Serialization fundamentals
+   - Read: `docs/03_serialization.md`
    ```bash
    python 03_serialization/04_observe_serialization.py
    python 03_serialization/05_python_serialization_demo.py
@@ -73,11 +86,13 @@ This repository contains Hello World examples for Apache Spark in both Python (P
    python 03_serialization/07_numpy_serialization_nuances.py
    ```
 4. Performance patterns
+   - Read: `docs/04_performance.md`
    ```bash
    python 04_performance/08_spark_performance_demo.py
    python 04_performance/09_spark_data_types_performance.py
    ```
 5. Framework comparisons
+   - Read: `docs/05_frameworks.md`
    ```bash
    python 05_frameworks/10_framework_xbeta_cashflows.py
    python 05_frameworks/11_comprehensive_performance_benchmark.py
@@ -112,9 +127,9 @@ Notes:
    spark-submit target/scala-2.12/HelloWorldSpark-assembly-1.0.jar
    ```
 
-## What the Examples Demonstrate
+## What the examples demonstrate
 
-Both examples showcase the following Spark concepts:
+Across the path you will see:
 
 1. **Basic RDD Operations**
    - Creating RDDs from collections
@@ -135,8 +150,7 @@ Both examples showcase the following Spark concepts:
    - Running SQL queries on DataFrames
 
 5. **Functional Programming** (Scala example)
-   - Chaining operations
-   - Immutable data transformations
+   - Chaining operations; immutable data transformations
 
 ## Expected Output
 
@@ -179,7 +193,7 @@ While the examples are running, you can access the Spark UI at:
 
 This provides insights into job execution, stages, and performance metrics.
 
-## Next Steps
+## Next steps
 
 After running these examples, you might want to explore:
 
