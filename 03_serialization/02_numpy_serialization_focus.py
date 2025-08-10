@@ -421,8 +421,8 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/06_numpy_serialization_focus_clean.md",
-            title="Serialization: Spark→NumPy focus and total cost",
+            markdown_path="docs/generated/ser_02_numpy_serialization_focus.md",
+            title="Serialization 02: Spark→NumPy focus and total cost",
             main_callable=main,
         )
     else:

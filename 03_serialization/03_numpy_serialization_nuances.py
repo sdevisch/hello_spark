@@ -687,8 +687,8 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/07_numpy_serialization_nuances.md",
-            title="Serialization: NumPy boundaries and best practices",
+            markdown_path="docs/generated/ser_03_numpy_serialization_nuances.md",
+            title="Serialization 03: NumPy boundaries and best practices",
             main_callable=main,
         )
     else:

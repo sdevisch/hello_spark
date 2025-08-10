@@ -1,6 +1,6 @@
 # Frameworks: Benchmark (supporting details)
 
-Generated: 2025-08-10 16:17 UTC
+Generated: 2025-08-10 16:24 UTC
 
 ## Console output
 
@@ -23,94 +23,94 @@ Generated: 2025-08-10 16:17 UTC
 ⏱️  Creating NumPy arrays
    ✅ 0.000s | Memory: +0.00GB | Peak: 0.23GB
 ⏱️  Creating Spark DataFrame (no Arrow)
-   ✅ 0.864s | Memory: +0.01GB | Peak: 0.24GB
+   ✅ 0.929s | Memory: +0.01GB | Peak: 0.24GB
 ⏱️  Creating Spark DataFrame (with Arrow)
-   ✅ 0.217s | Memory: +0.00GB | Peak: 0.24GB
+   ✅ 0.223s | Memory: +0.00GB | Peak: 0.24GB
 
 ============================================================
 🔍 BENCHMARK 1: BASIC OPERATIONS (Filter + Select)
 ============================================================
 ⏱️  Pandas basic ops
-   ✅ 0.003s | Memory: +0.00GB | Peak: 0.24GB
+   ✅ 0.004s | Memory: +0.01GB | Peak: 0.24GB
 ⏱️  NumPy basic ops
-   ✅ 0.003s | Memory: +0.00GB | Peak: 0.24GB
+   ✅ 0.004s | Memory: +0.00GB | Peak: 0.25GB
 ⏱️  Numba basic ops
-   ✅ 0.154s | Memory: +0.03GB | Peak: 0.27GB
+   ✅ 0.176s | Memory: +0.03GB | Peak: 0.28GB
 ⏱️  Spark basic ops (no Arrow)
-   ✅ 0.135s | Memory: +0.00GB | Peak: 0.27GB
+   ✅ 0.110s | Memory: +0.00GB | Peak: 0.28GB
 ⏱️  Spark basic ops (with Arrow)
-   ✅ 0.060s | Memory: +0.00GB | Peak: 0.27GB
+   ✅ 0.084s | Memory: +0.00GB | Peak: 0.28GB
 
 📈 BASIC OPERATIONS RESULTS:
 Framework            Time (s)   Memory (GB)  Speedup   
 -------------------------------------------------------
-pandas               0.003      0.00         1.0       x
-numpy                0.003      0.00         1.0       x
-numba                0.154      0.03         45.8      x
-spark_no_arrow       0.135      0.00         40.1      x
-spark_arrow          0.060      0.00         17.9      x
+pandas               0.004      0.01         1.0       x
+numpy                0.004      0.00         1.1       x
+numba                0.176      0.03         43.9      x
+spark_no_arrow       0.110      0.00         27.4      x
+spark_arrow          0.084      0.00         20.9      x
 
 ============================================================
 📊 BENCHMARK 2: AGGREGATIONS (GroupBy + Statistics)
 ============================================================
 ⏱️  Pandas aggregations
-   ✅ 0.010s | Memory: +0.01GB | Peak: 0.27GB
+   ✅ 0.010s | Memory: +0.00GB | Peak: 0.29GB
 ⏱️  NumPy aggregations
-   ✅ 0.017s | Memory: +0.00GB | Peak: 0.27GB
+   ✅ 0.017s | Memory: +0.00GB | Peak: 0.29GB
 ⏱️  Numba aggregations
-   ✅ 0.209s | Memory: +0.01GB | Peak: 0.28GB
+   ✅ 0.210s | Memory: +0.01GB | Peak: 0.29GB
 ⏱️  Spark aggregations (no Arrow)
-   ✅ 0.046s | Memory: +0.00GB | Peak: 0.28GB
+   ✅ 0.046s | Memory: +0.00GB | Peak: 0.29GB
 ⏱️  Spark aggregations (with Arrow)
-   ✅ 0.052s | Memory: +0.00GB | Peak: 0.28GB
+   ✅ 0.046s | Memory: +0.00GB | Peak: 0.29GB
 
 📈 AGGREGATIONS RESULTS:
 Framework            Time (s)   Memory (GB)  Speedup   
 -------------------------------------------------------
-pandas               0.010      0.01         1.0       x
+pandas               0.010      0.00         1.0       x
 numpy                0.017      0.00         1.7       x
-numba                0.209      0.01         20.6      x
-spark_no_arrow       0.046      0.00         4.5       x
-spark_arrow          0.052      0.00         5.1       x
+numba                0.210      0.01         20.2      x
+spark_no_arrow       0.046      0.00         4.4       x
+spark_arrow          0.046      0.00         4.4       x
 
 ============================================================
 🧮 BENCHMARK 3: MATHEMATICAL OPERATIONS
 ============================================================
 ⏱️  Pandas math ops
-   ✅ 0.007s | Memory: +0.01GB | Peak: 0.29GB
+   ✅ 0.008s | Memory: +0.01GB | Peak: 0.30GB
 ⏱️  NumPy math ops
-   ✅ 0.004s | Memory: +0.00GB | Peak: 0.29GB
+   ✅ 0.004s | Memory: +0.00GB | Peak: 0.30GB
 ⏱️  Numba math ops
-   ✅ 0.264s | Memory: +0.01GB | Peak: 0.30GB
+   ✅ 0.267s | Memory: +0.00GB | Peak: 0.30GB
 ⏱️  Spark math ops (no Arrow)
-   ✅ 0.754s | Memory: +0.00GB | Peak: 0.30GB
+   ✅ 0.665s | Memory: +0.00GB | Peak: 0.30GB
 ⏱️  Spark math ops (with Arrow)
-   ✅ 0.592s | Memory: +0.00GB | Peak: 0.30GB
+   ✅ 0.518s | Memory: +0.00GB | Peak: 0.30GB
 
 📈 MATHEMATICAL OPERATIONS RESULTS:
 Framework            Time (s)   Memory (GB)  Speedup   
 -------------------------------------------------------
-pandas               0.007      0.01         1.7       x
+pandas               0.008      0.01         1.9       x
 numpy                0.004      0.00         1.0       x
-numba                0.264      0.01         59.5      x
-spark_no_arrow       0.754      0.00         169.7     x
-spark_arrow          0.592      0.00         133.2     x
+numba                0.267      0.00         62.6      x
+spark_no_arrow       0.665      0.00         156.1     x
+spark_arrow          0.518      0.00         121.5     x
 
 ============================================================
 🔄 BENCHMARK 4: DATA CONVERSION (to Pandas)
 ============================================================
 ⏱️  Spark to pandas (no Arrow)
-   ✅ 0.646s | Memory: +0.03GB | Peak: 0.33GB
+   ✅ 0.598s | Memory: +0.03GB | Peak: 0.34GB
 ⏱️  Spark to pandas (with Arrow)
-   ✅ 0.400s | Memory: +0.04GB | Peak: 0.37GB
+   ✅ 0.449s | Memory: +0.05GB | Peak: 0.38GB
 ⏱️  NumPy to pandas
-   ✅ 0.006s | Memory: +0.01GB | Peak: 0.38GB
+   ✅ 0.006s | Memory: +0.01GB | Peak: 0.39GB
 
 📈 DATA CONVERSION RESULTS:
 Framework            Time (s)   Memory (GB)  Speedup   
 -------------------------------------------------------
-spark_no_arrow       0.646      0.03         101.8     x
-spark_arrow          0.400      0.04         63.1      x
+spark_no_arrow       0.598      0.03         99.4      x
+spark_arrow          0.449      0.05         74.7      x
 numpy                0.006      0.01         1.0       x
 
 ============================================================
@@ -118,20 +118,20 @@ numpy                0.006      0.01         1.0       x
 ============================================================
 
 🎯 Basic Operations:
-   🥇 Winner: numpy (0.003s)
-   ⚡ Max speedup: 45.8x
+   🥇 Winner: pandas (0.004s)
+   ⚡ Max speedup: 43.9x
 
 🎯 Aggregations:
    🥇 Winner: pandas (0.010s)
-   ⚡ Max speedup: 20.6x
+   ⚡ Max speedup: 20.2x
 
 🎯 Mathematical Operations:
    🥇 Winner: numpy (0.004s)
-   ⚡ Max speedup: 169.7x
+   ⚡ Max speedup: 156.1x
 
 🎯 Data Conversion:
    🥇 Winner: numpy (0.006s)
-   ⚡ Max speedup: 101.8x
+   ⚡ Max speedup: 99.4x
 
 💡 KEY INSIGHTS:
    - Dataset size: 200,000 rows × 12 columns

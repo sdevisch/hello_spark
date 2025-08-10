@@ -112,8 +112,8 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/03_spark_ui_demo.md",
-            title="Spark UI Demo: Sample jobs and UI exploration",
+            markdown_path="docs/generated/ui_01_spark_ui_demo.md",
+            title="UI: Spark UI demo (jobs and exploration)",
             main_callable=main,
         )
     else:
