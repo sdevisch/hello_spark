@@ -82,17 +82,23 @@ This repo is organized to read “last page first”: start from framework choic
 
 ## Recommended run sequence (Python) — last page first
 
-1. Basics
-   - Read: `docs/01_basics.md`
-   - Output: `docs/generated/01_basics_output.md`
+1. Framework comparisons (start here)
+   - Read: `docs/01_frameworks.md`
+   - Outputs: `docs/generated/01_frameworks_conclusion.md`, `02_frameworks_benchmark.md`, `03_framework_xbeta_cashflows.md`, appendix `04_*` and `05_*`
    ```bash
-   python 01_basics/01_hello_world_python.py
+   python 01_frameworks/01_frameworks_conclusion.py
+   python 01_frameworks/02_frameworks_benchmark.py
+   python 01_frameworks/03_framework_xbeta_cashflows.py
+   # Appendix (optional)
+   python 01_frameworks/04_numbox_dag_demo.py
+   python 01_frameworks/05_numbox_dynamic_dag_demo.py
    ```
-2. Spark UI
-   - Read: `docs/02_ui.md`
-   - Output: `docs/generated/ui_01_spark_ui_demo.md`
+2. Performance patterns
+   - Read: `docs/02_performance.md`
+   - Outputs: `docs/generated/perf_*_*.md`
    ```bash
-   python 02_ui/01_spark_ui_demo.py
+   python 02_performance/01_spark_performance_demo.py
+   python 02_performance/02_spark_data_types_performance.py
    ```
 3. Serialization fundamentals
    - Read: `docs/03_serialization.md`
@@ -103,24 +109,14 @@ This repo is organized to read “last page first”: start from framework choic
    python 03_serialization/02_numpy_serialization_focus.py
    python 03_serialization/03_numpy_serialization_nuances.py
    ```
-4. Performance patterns
-   - Read: `docs/04_performance.md`
-   - Outputs: `docs/generated/perf_*_*.md`
+4. Spark UI
+   - Read: `docs/04_ui.md`
+   - Outputs: `docs/generated/ui_01_spark_ui_demo.md`
    ```bash
-   python 04_performance/01_spark_performance_demo.py
-   python 04_performance/02_spark_data_types_performance.py
+   python 04_ui/01_spark_ui_demo.py
    ```
-5. Framework comparisons (start here)
-   - Read: `docs/05_frameworks.md`
-   - Outputs: `docs/generated/0*_*.md`
-   ```bash
-   python 05_frameworks/01_frameworks_conclusion.py
-   python 05_frameworks/02_frameworks_benchmark.py
-   python 05_frameworks/03_framework_xbeta_cashflows.py
-   # Appendix (optional)
-   python 05_frameworks/04_numbox_dag_demo.py
-   python 05_frameworks/05_numbox_dynamic_dag_demo.py
-   ```
+5. Basics (optional background)
+   - Read: `docs/05_basics.md`
 
 Notes:
 - Some scripts size datasets based on available RAM and may take several minutes.
