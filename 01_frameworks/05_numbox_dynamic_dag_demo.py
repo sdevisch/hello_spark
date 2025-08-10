@@ -22,12 +22,18 @@ References:
 """
 
 import os
+import sys
 import time
 import random
 from typing import Dict, List, Tuple
 
 import numpy as np
-from utils.mem import get_total_memory_gb
+# Ensure repo root for utils.*
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from utils.mem import get_total_memory_gb, get_process_memory_mb
 
 try:
     import numba
@@ -84,7 +90,7 @@ class DynamicDagBenchmark:
     # ----- infra helpers -----
     @staticmethod
     def _mem_gb() -> float:
-        return psutil.Process(os.getpid()).memory_info().rss / (1024 ** 3)
+        return get_process_memory_mb() / 1024.0
 
     def _time(self, name: str, fn, *args, **kwargs) -> Tuple[object, float, float]:
         start_mem = self._mem_gb()
@@ -329,7 +335,7 @@ class DynamicDagBenchmark:
         print("📈 SCALING ANALYSIS: long (rows) × wide (degree count)")
         print("=" * 60)
 
-        memory_gb = psutil.virtual_memory().total / (1024 ** 3)
+        memory_gb = get_total_memory_gb()
         # Choose sizes conservatively
         if memory_gb < 8:
             sizes = [50_000, 100_000]

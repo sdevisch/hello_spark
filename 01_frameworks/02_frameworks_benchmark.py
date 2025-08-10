@@ -23,8 +23,15 @@ Key Features:
 
 import time
 import gc
-from utils.mem import get_total_memory_gb, get_cpu_count
 import os
+import sys
+
+# Ensure repo root for utils.*
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from utils.mem import get_total_memory_gb, get_cpu_count, get_process_memory_mb
 import numpy as np
 import pandas as pd
 from numba import jit, prange
@@ -75,9 +82,8 @@ class ComprehensiveBenchmark:
         self.results = {}
 
     def get_memory_usage(self):
-        """Get current memory usage in GB"""
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024**3)
+        """Get current memory usage in GB (psutil-optional via utils.mem)."""
+        return get_process_memory_mb() / 1024.0
 
     def time_with_memory(self, name, func, *args, **kwargs):
         """Time a function and track memory usage"""

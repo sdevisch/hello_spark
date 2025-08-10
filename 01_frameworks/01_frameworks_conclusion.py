@@ -31,9 +31,15 @@ Scenario: Data starts in Spark; we compare staying in Spark vs converting.
 import time
 import numpy as np
 import pandas as pd
-from utils.mem import get_total_memory_gb
 import os
 import sys
+
+# Ensure repo root is importable for `utils.*` before any imports that use it
+_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
+
+from utils.mem import get_total_memory_gb, get_process_memory_mb
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.functions import col
@@ -142,9 +148,8 @@ class FrameworkComparison:
         print(f"🌐 Spark UI (With Arrow): http://localhost:4041")
 
     def get_memory_usage(self):
-        """Get current memory usage in GB"""
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024**3)
+        """Get current memory usage in GB (psutil-optional via utils.mem)."""
+        return get_process_memory_mb() / 1024.0
 
     def time_operation(self, name, func, *args, **kwargs):
         """Time an operation with memory tracking"""

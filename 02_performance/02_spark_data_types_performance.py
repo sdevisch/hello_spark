@@ -17,8 +17,15 @@ Key comparisons:
 import time
 import numpy as np
 import pandas as pd
-from utils.mem import get_process_memory_mb
 import os
+import sys
+
+# Ensure repo root is importable for utils.* before imports that use it
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from utils.mem import get_process_memory_mb
 from decimal import Decimal
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
