@@ -346,6 +346,7 @@ class SerializationObserver:
 def main():
     """Main function to run the serialization observation demo"""
     print("🔍 Starting Serialization Observation Demo...")
+    print("📚 Docs index: docs/index.md")
     
     observer = SerializationObserver()
     observer.run_all_demos()

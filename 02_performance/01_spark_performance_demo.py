@@ -407,6 +407,7 @@ class PerformanceBenchmark:
 def main():
     """Main function to run the performance demonstration"""
     print("🚀 Starting Spark Performance Demo...")
+    print("📚 Docs index: docs/index.md")
     
     benchmark = PerformanceBenchmark()
     benchmark.run_all_demos()

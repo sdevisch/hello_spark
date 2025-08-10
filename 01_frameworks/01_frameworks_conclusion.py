@@ -1045,6 +1045,7 @@ class FrameworkComparison:
 def main():
     """Main function to run the comprehensive framework comparison"""
     print("🚀 Starting Comprehensive Framework Comparison...")
+    print("📚 Docs index: docs/index.md")
     
     # Check system resources
     memory_gb = psutil.virtual_memory().total / (1024**3)

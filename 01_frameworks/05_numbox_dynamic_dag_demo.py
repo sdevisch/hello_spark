@@ -402,6 +402,7 @@ class DynamicDagBenchmark:
 
 def main() -> None:
     print("🚀 Starting Numbox Dynamic DAG Demo...")
+    print("📚 Docs index: docs/index.md")
     memory_gb = psutil.virtual_memory().total / (1024 ** 3)
     print(f"💻 System memory: {memory_gb:.1f} GB")
     if memory_gb < 8:

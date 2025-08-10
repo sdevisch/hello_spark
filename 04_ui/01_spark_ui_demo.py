@@ -34,6 +34,7 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     
     print("🚀 Starting Spark session for UI exploration...")
+    print("📚 Docs index: docs/index.md")
     
     # Initialize Spark Session with some sample data processing
     spark = SparkSession.builder \

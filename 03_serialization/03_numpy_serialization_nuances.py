@@ -666,6 +666,7 @@ class NumPySerializationNuances:
 def main():
     """Main function to run the NumPy serialization nuances demonstration"""
     print("🚀 Starting NumPy Serialization Nuances Demo...")
+    print("📚 Docs index: docs/index.md")
     
     # Check system resources
     memory_gb = psutil.virtual_memory().total / (1024**3)

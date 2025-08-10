@@ -351,6 +351,7 @@ class SerializationBenchmark:
 
 def main():
     """Main function to run the serialization demonstration"""
+    print("📚 Docs index: docs/index.md")
     # Check if required packages are available
     try:
         import pyarrow

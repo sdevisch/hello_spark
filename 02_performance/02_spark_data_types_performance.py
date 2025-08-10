@@ -617,6 +617,7 @@ class SparkDataTypesDemo:
 
 def main():
     """Main execution function"""
+    print("📚 Docs index: docs/index.md")
     demo = SparkDataTypesDemo(rows=500_000)  # Use smaller dataset for more reliable results
     demo.run_all_scenarios()
 
