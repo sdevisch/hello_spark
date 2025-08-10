@@ -31,8 +31,9 @@ Scenario: Data starts in Spark; we compare staying in Spark vs converting.
 import time
 import numpy as np
 import pandas as pd
-import psutil
+from utils.mem import get_total_memory_gb
 import os
+import sys
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.functions import col
@@ -1047,8 +1048,8 @@ def main():
     print("🚀 Starting Comprehensive Framework Comparison...")
     print("📚 Docs index: docs/index.md")
     
-    # Check system resources
-    memory_gb = psutil.virtual_memory().total / (1024**3)
+    # Check system resources (psutil-optional)
+    memory_gb = get_total_memory_gb()
     print(f"💻 System: {memory_gb:.1f}GB RAM")
     
     # Check dependencies
@@ -1073,10 +1074,11 @@ def main():
 
 if __name__ == "__main__":
     import os as _os, sys as _sys
+    # Make repo root importable for utils.* when running directly or via docgen
+    ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..'))
+    if ROOT not in _sys.path:
+        _sys.path.insert(0, ROOT)
     if _os.environ.get("GENERATE_DOCS", "0") == "1":
-        ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..'))
-        if ROOT not in _sys.path:
-            _sys.path.insert(0, ROOT)
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(

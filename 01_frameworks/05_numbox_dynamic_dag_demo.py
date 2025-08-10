@@ -27,7 +27,7 @@ import random
 from typing import Dict, List, Tuple
 
 import numpy as np
-import psutil
+from utils.mem import get_total_memory_gb
 
 try:
     import numba
@@ -403,7 +403,7 @@ class DynamicDagBenchmark:
 def main() -> None:
     print("🚀 Starting Numbox Dynamic DAG Demo...")
     print("📚 Docs index: docs/index.md")
-    memory_gb = psutil.virtual_memory().total / (1024 ** 3)
+    memory_gb = get_total_memory_gb()
     print(f"💻 System memory: {memory_gb:.1f} GB")
     if memory_gb < 8:
         n = 100_000

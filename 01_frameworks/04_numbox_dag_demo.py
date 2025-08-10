@@ -38,7 +38,7 @@ from typing import Dict, Tuple
 
 import numpy as np
 import pandas as pd
-import psutil
+from utils.mem import get_total_memory_gb
 
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
@@ -664,7 +664,7 @@ class NumboxDagDemo:
 def main() -> None:
     print("🚀 Starting Numbox DAG Demo...")
     print("📚 Docs index: docs/index.md")
-    memory_gb = psutil.virtual_memory().total / (1024 ** 3)
+    memory_gb = get_total_memory_gb()
     print(f"💻 System memory: {memory_gb:.1f} GB")
     if memory_gb < 8:
         rows = 100_000

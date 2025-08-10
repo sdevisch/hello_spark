@@ -23,7 +23,7 @@ Key Features:
 
 import time
 import gc
-import psutil
+from utils.mem import get_total_memory_gb, get_cpu_count
 import os
 import numpy as np
 import pandas as pd
@@ -514,8 +514,8 @@ def main():
     print("📚 Docs index: docs/index.md")
     
     # Check system resources
-    memory_gb = psutil.virtual_memory().total / (1024**3)
-    cpu_count = psutil.cpu_count()
+    memory_gb = get_total_memory_gb()
+    cpu_count = get_cpu_count()
     
     print(f"💻 System: {memory_gb:.1f}GB RAM, {cpu_count} CPU cores")
     

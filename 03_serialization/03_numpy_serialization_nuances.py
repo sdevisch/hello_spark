@@ -16,7 +16,7 @@ How: Build realistic data in Spark, convert with Arrow, then profile NumPy ops.
 
 import time
 import numpy as np
-import psutil
+from utils.mem import get_total_memory_gb
 import os
 import pickle
 import sys
@@ -669,7 +669,7 @@ def main():
     print("📚 Docs index: docs/index.md")
     
     # Check system resources
-    memory_gb = psutil.virtual_memory().total / (1024**3)
+    memory_gb = get_total_memory_gb()
     print(f"💻 System: {memory_gb:.1f}GB RAM")
     
     # Use smaller dataset for detailed analysis

@@ -17,7 +17,7 @@ How: Build data in Spark, compare Spark compute vs Arrow→NumPy compute.
 
 import time
 import numpy as np
-import psutil
+from utils.mem import get_total_memory_gb
 import os
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
@@ -398,7 +398,7 @@ def main():
     print("📚 Docs index: docs/index.md")
     
     # Check system resources
-    memory_gb = psutil.virtual_memory().total / (1024**3)
+    memory_gb = get_total_memory_gb()
     print(f"💻 System: {memory_gb:.1f}GB RAM")
     
     # Adjust size based on available memory
