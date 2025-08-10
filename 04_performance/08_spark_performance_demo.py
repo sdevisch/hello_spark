@@ -374,15 +374,18 @@ class PerformanceBenchmark:
         except Exception as e:
             print(f"❌ Error during demo: {e}")
         finally:
-            # Keep Spark session alive for UI exploration
-            print(f"\n⏳ Keeping Spark session alive for 60 seconds...")
-            print("   Explore the Spark UI to see detailed execution metrics!")
-            print("   Press Ctrl+C to stop early.")
-            
-            try:
-                time.sleep(60)
-            except KeyboardInterrupt:
-                print("\n🛑 Interrupted by user")
+            # Reduce/skip wait when generating docs
+            import os as _os
+            if _os.environ.get("GENERATE_DOCS", "0") == "1":
+                print("\n⏳ Skipping 60s keep-alive for docs generation")
+            else:
+                print(f"\n⏳ Keeping Spark session alive for 60 seconds...")
+                print("   Explore the Spark UI to see detailed execution metrics!")
+                print("   Press Ctrl+C to stop early.")
+                try:
+                    time.sleep(60)
+                except KeyboardInterrupt:
+                    print("\n🛑 Interrupted by user")
             
             self.cleanup()
 

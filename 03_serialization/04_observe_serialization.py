@@ -322,12 +322,16 @@ class SerializationObserver:
         except Exception as e:
             print(f"❌ Error during demo: {e}")
         finally:
-            print(f"\n⏳ Keeping Spark session alive for 30 seconds...")
-            print("   Perfect time to explore the Spark UI!")
-            try:
-                time.sleep(30)
-            except KeyboardInterrupt:
-                print("\n🛑 Interrupted by user")
+            # Skip long waits when generating docs
+            if os.environ.get("GENERATE_DOCS", "0") == "1":
+                print("\n⏳ Skipping 30s keep-alive for docs generation")
+            else:
+                print(f"\n⏳ Keeping Spark session alive for 30 seconds...")
+                print("   Perfect time to explore the Spark UI!")
+                try:
+                    time.sleep(30)
+                except KeyboardInterrupt:
+                    print("\n🛑 Interrupted by user")
             
             self.cleanup()
 
