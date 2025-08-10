@@ -56,6 +56,7 @@ This repo is organized to read “last page first”: start from framework choic
   - `03_serialization.md` — overview
   - `04_performance.md` — overview
   - `05_frameworks.md` — overview
+  - `index.md` — quick links to generated outputs (conclusion-first)
   - `generated/` — auto-generated console outputs for each part
 - `02_ui/`
   - `01_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
