@@ -1,6 +1,6 @@
-## Serialization: Explain plans, Arrow, and NumPy boundaries
+## Serialization (conclusion first)
 
-Read this after the framework conclusions. The goal here is to explain when pandas/NumPy serialize, why Arrow matters, and how to avoid hidden Python crossings.
+Prefer native Spark functions. When moving to pandas, enable Arrow. Once in pandas/NumPy, keep work vectorized and avoid Python loops and `.tolist()`. Cross the JVM↔Python boundary only when necessary.
 
 This part contains four scripts that show where serialization happens and how to minimize it.
 

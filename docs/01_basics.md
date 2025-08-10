@@ -1,4 +1,6 @@
-## Basics: Spark Hello World (PySpark)
+## Basics (conclusion first)
+
+Start with the DataFrame API and built-in functions; use the Spark UI to see what actually runs. RDDs are useful to know, but DataFrames are the default for ergonomics and performance.
 
 This part introduces core Spark concepts with a single Python script: `01_basics/01_hello_world_python.py`.
 

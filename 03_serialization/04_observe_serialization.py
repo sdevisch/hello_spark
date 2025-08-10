@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Observing Serialization in Spark: Using explain() and Diagnostics
-================================================================
+Conclusion first: Serialization is visible—find it and avoid it
+===============================================================
 
-This script demonstrates how to observe and understand serialization overhead
-in Spark using built-in diagnostic tools like explain(), Spark UI, and timing.
+Conclusion: Prefer native Spark functions and look for 'BatchEvalPython' in
+execution plans. That is where data crosses JVM↔Python and slows down.
 
-Key Learning Objectives:
-1. How to use explain() to see execution plans
-2. Identifying when serialization occurs in execution plans
-3. Comparing execution plans: UDFs vs native functions
-4. Using Spark UI to observe serialization overhead
-5. Simple timing techniques to measure performance impact
+Why: Python UDFs require serialization and add overhead; native expressions run
+entirely in the JVM. The UI and `explain()` make this visible.
+
+What: Show how to spot and time serialization hotspots.
+
+How: Use `explain()`, compare native vs UDF, and watch the SQL tab in the UI.
 """
 
 import time

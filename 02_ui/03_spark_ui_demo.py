@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
 """
-Simple Spark UI Demo - keeps a Spark session running for UI exploration
-Run this script and access the Spark UI at http://localhost:4040
+Conclusion first: The UI is your compass for performance
+========================================================
+
+Conclusion: Always correlate your code with the Spark UI. It shows stages,
+tasks, and plan details (including Python serialization points) so you can
+improve performance and correctness.
+
+Why: The UI reveals shuffles, Python UDF stages, skew, and partitioning.
+
+What: A tiny set of jobs to populate Jobs/Stages/SQL tabs.
+
+How: Start a session locally and keep it alive for exploration.
 """
 
 from pyspark.sql import SparkSession

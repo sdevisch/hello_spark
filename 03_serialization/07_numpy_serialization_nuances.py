@@ -1,25 +1,17 @@
 #!/usr/bin/env python3
 """
-NumPy Serialization Nuances: Starting from Spark Data
-====================================================
+Conclusion first: After Arrow→NumPy, stay in C; avoid Python crossings
+======================================================================
 
-This script demonstrates the realistic scenario where data STARTS in Spark
-and shows the fine-grained serialization boundaries within NumPy operations.
+Conclusion: Once data is in NumPy, keep work vectorized in C. Avoid scalar
+extraction, `.tolist()`, and Python loops that cross back into Python objects.
 
-Realistic Flow:
-1. Data starts in Spark DataFrames (from files, databases, etc.)
-2. Data is converted to NumPy (initial serialization cost)
-3. Analysis of when ADDITIONAL serialization occurs within NumPy operations
+Why: Vectorized NumPy runs in optimized C; Python object creation is slow and
+memory-heavy.
 
-Key Focus Areas:
-1. NumPy operations that stay in C (NO additional serialization)
-2. Operations that force Python conversion (serialization occurs)
-3. Memory views vs copies
-4. Scalar extraction vs array slicing
-5. Comparison with Spark-level serialization costs
+What: Identify boundaries where C→Python happens and how to avoid them.
 
-Learning Goal: Understand when serialization happens AFTER the initial
-Spark→NumPy conversion, and how to minimize unnecessary boundary crossings.
+How: Build realistic data in Spark, convert with Arrow, then profile NumPy ops.
 """
 
 import time

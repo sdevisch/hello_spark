@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
-Python Serialization Performance Demo: Arrow vs Traditional Pandas
-==================================================================
+Conclusion first: Use Arrow for Spark↔pandas; avoid Python UDFs
+===============================================================
 
-This script demonstrates the performance differences in Python serialization,
-focusing on the simplest possible examples that show the impact of Apache Arrow
-on data transfer between Spark (JVM) and Python processes.
+Conclusion: In a Spark context, when moving to pandas, enable Arrow. Avoid
+Python UDFs; prefer native Spark functions. Use pandas/NumPy only after an
+Arrow conversion when you need single-machine analysis.
 
-Key Concepts Demonstrated:
-1. Basic pandas DataFrame creation and conversion performance
-2. Arrow-enabled vs non-Arrow Spark-to-pandas conversion
-3. Serialization overhead in Python UDFs
-4. Memory efficiency comparisons
+Why: Arrow gives 2–10x faster transfers; native functions avoid JVM↔Python
+serialization. Pandas/NumPy excel once data is local.
+
+What: Minimal demonstrations of Arrow vs no-Arrow and UDF cost.
+
+How: Create Spark DataFrames, compare conversions and compute routes.
 """
 
 import time

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-NumPy Serialization Focus: Starting with Spark Data
-==================================================
+Conclusion first: Stay in Spark unless math-heavy; if converting, use Arrow
+==========================================================================
 
-This script demonstrates serialization patterns when data STARTS in Spark
-(which is the typical real-world scenario) and shows:
+Conclusion: If data starts in Spark, prefer to stay there. Convert to
+NumPy/pandas only when you need math-heavy, vectorized work—and always use
+Arrow for the conversion.
 
-1. When NO serialization occurs (staying in Spark)
-2. When serialization DOES occur (Spark → NumPy/pandas)
-3. Why NumPy operations are fast once data is converted
-4. The cost of moving data between runtimes
+Why: Spark avoids serialization and distributes work; NumPy is extremely fast
+once data is in C arrays, but the transfer has a cost.
 
-Key Learning: Starting with Spark data, serialization cost depends on 
-whether you stay in Spark or move to NumPy/pandas for computation.
+What: Show total-time tradeoffs, highlighting Arrow’s impact and compute speed.
+
+How: Build data in Spark, compare Spark compute vs Arrow→NumPy compute.
 """
 
 import time

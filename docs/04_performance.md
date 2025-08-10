@@ -1,4 +1,6 @@
-## Performance: Patterns and Data Types
+## Performance (conclusion first)
+
+Use columnar formats (Parquet), native functions over Python UDFs, cache wisely, size partitions to hardware, and broadcast small lookups. These choices minimize I/O and JVM↔Python serialization.
 
 This part demonstrates common performance bottlenecks and fixes.
 

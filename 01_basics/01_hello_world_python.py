@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
 """
-Hello World example using Apache Spark (PySpark)
-This script demonstrates basic Spark operations including RDD creation, transformations, and actions.
+Conclusion first: Start with DataFrames and built-ins; use the UI to learn
+==========================================================================
+
+Conclusion: In Spark, prefer the DataFrame API with built-in functions over
+manual Python loops. Use a local `SparkSession` (e.g., `local[*]`) and the
+Spark UI to see what actually runs. RDDs are useful to know but are rarely the
+best first choice.
+
+Why: DataFrames leverage Catalyst and JVM execution for correctness and speed.
+The Spark UI makes plans and stages visible so you can connect code to runtime.
+
+What: Minimal examples of RDD, DataFrame, and SQL to anchor core concepts.
+
+How: Run to create a session, execute a few simple operations, and open the UI.
 """
 
 from pyspark.sql import SparkSession
