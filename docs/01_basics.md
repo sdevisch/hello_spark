@@ -22,4 +22,7 @@ This part introduces core Spark concepts with a single Python script: `01_basics
 ### File
 - `01_basics/01_hello_world_python.py`
 
+### Generated output
+- `docs/generated/01_basics_output.md`
+
 

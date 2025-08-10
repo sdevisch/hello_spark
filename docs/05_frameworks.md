@@ -7,6 +7,11 @@ This part compares frameworks on realistic workloads and synthetic benchmarks.
 - `05_frameworks/11_comprehensive_performance_benchmark.py`
 - `05_frameworks/12_comprehensive_framework_comparison.py`
 
+### Generated outputs
+- `docs/generated/05_frameworks_xbeta_cashflows_output.md`
+- `docs/generated/05_frameworks_benchmark_output.md`
+- `docs/generated/05_frameworks_comparison_output.md`
+
 ### What they cover
 - Panel dataset with per-entity features, xbeta, cashflows, and rolling windows
 - End-to-end benchmarks across Spark, pandas, NumPy, and Numba

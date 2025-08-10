@@ -50,6 +50,7 @@ Start with the overview docs, then optionally run the scripts.
   - `03_serialization.md` — overview
   - `04_performance.md` — overview
   - `05_frameworks.md` — overview
+  - `generated/` — auto-generated console outputs for each part
 - `02_ui/`
   - `03_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
 - `03_serialization/`
@@ -69,16 +70,19 @@ Start with the overview docs, then optionally run the scripts.
 
 1. Basics
    - Read: `docs/01_basics.md`
+   - Output: `docs/generated/01_basics_output.md`
    ```bash
    python 01_basics/01_hello_world_python.py
    ```
 2. Spark UI
    - Read: `docs/02_ui.md`
+   - Output: `docs/generated/02_ui_output.md`
    ```bash
    python 02_ui/03_spark_ui_demo.py
    ```
 3. Serialization fundamentals
    - Read: `docs/03_serialization.md`
+   - Outputs: `docs/generated/03_serialization_*_output.md`
    ```bash
    python 03_serialization/04_observe_serialization.py
    python 03_serialization/05_python_serialization_demo.py
@@ -87,12 +91,14 @@ Start with the overview docs, then optionally run the scripts.
    ```
 4. Performance patterns
    - Read: `docs/04_performance.md`
+   - Outputs: `docs/generated/04_*_output.md`
    ```bash
    python 04_performance/08_spark_performance_demo.py
    python 04_performance/09_spark_data_types_performance.py
    ```
 5. Framework comparisons
    - Read: `docs/05_frameworks.md`
+   - Outputs: `docs/generated/05_frameworks_*_output.md`
    ```bash
    python 05_frameworks/10_framework_xbeta_cashflows.py
    python 05_frameworks/11_comprehensive_performance_benchmark.py

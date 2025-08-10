@@ -6,6 +6,10 @@ This part demonstrates common performance bottlenecks and fixes.
 - `04_performance/08_spark_performance_demo.py`
 - `04_performance/09_spark_data_types_performance.py`
 
+### Generated outputs
+- `docs/generated/04_performance_demo_output.md`
+- `docs/generated/04_data_types_performance_output.md`
+
 ### What they cover
 - I/O formats: CSV vs Parquet (read/write speed)
 - Serialization issues: Python UDF vs native functions
