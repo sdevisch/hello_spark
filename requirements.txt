@@ -11,6 +11,7 @@ pandas>=1.5.0
 pyarrow>=21.0.0
 numba>=0.60.0
 psutil>=7.0.0
+numbox>=0.2.5
 
 # Optional: For visualization
 matplotlib>=3.6.0
