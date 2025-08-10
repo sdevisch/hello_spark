@@ -4,8 +4,13 @@ Comprehensive Framework Comparison: Start with the conclusion
 =============================================================
 
 Main conclusion (last-page-first):
-- In a Spark context, first preference is: stay in Spark with native functions. When moving to a single machine, use Arrow to convert to pandas and keep operations vectorized in pandas.
-- Only use NumPy / jitted NumPy (Numba) for targeted kernels that pandas cannot express efficiently. Those are niche and isolated.
+- Stay in Spark with native functions where possible. When moving to a single machine, use Arrow to convert to pandas and keep operations vectorized in pandas.
+- Use NumPy / jitted NumPy (Numba) only for targeted numeric kernels that pandas cannot express efficiently. Keep these kernels isolated and profile-driven.
+
+Why pandas is recommended for most work:
+- Expressive tabular API for joins, groupby, reshaping, time series
+- Rich ecosystem (sklearn, statsmodels, plotting) and stable Spark↔pandas handoff via Arrow
+- Lower operational overhead than managing JIT signatures/dtypes and warm-ups
 
 This script demonstrates a realistic scenario comparing four frameworks:
 1. Spark (native) and pandas API on Spark

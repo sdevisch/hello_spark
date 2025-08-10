@@ -5,6 +5,16 @@ Main guidance:
 - In a Spark context, prefer Arrow and pandas for the majority of tasks. Use Spark native functions when you stay in Spark; when converting to single-machine, use Arrow to pandas and keep operations vectorized in pandas.
 - For specialized kernels or tight loops that pandas cannot express efficiently, switch to NumPy or Numba (jitted NumPy) as isolated steps. The scripts here show those niche cases.
 
+Why pandas first:
+- Expressiveness: concise groupby/join/reshape/time series vs hand-rolled array logic
+- Interop: seamless with scikit-learn, plotting, IO; fewer bespoke adapters
+- Team velocity: clearer code reviews, fewer dtype pitfalls, easier onboarding
+- Proven handoff: Spark → Arrow → pandas is optimized and stable; pandas-on-Spark offers API parity when staying distributed
+
+When NumPy/Numba shine:
+- Numeric kernels on dense arrays where vectorization or JIT loops dominate total time
+- You’ve profiled, identified a hotspot, and can isolate it as a pure numeric kernel
+
 Then, the details: conversion times, compute-only comparisons, and serialization hotspots.
 
 ### Files (conclusion → supporting → appendix)

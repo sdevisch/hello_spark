@@ -6,9 +6,21 @@ This repository is an end-to-end learning path for Apache Spark and related Pyth
 
 Main conclusion first:
 
-- In a Spark context, prefer using Arrow and the simplest, most well-known syntax: pandas (pandas-on-Spark for API parity; pandas DataFrame after Arrow conversion when moving off Spark). It gives the best balance of performance, ergonomics, and ecosystem integration for most cases.
-- For very specific hot paths that are not easily vectorized with pandas, use specialized frameworks like NumPy and jitted NumPy (Numba). Those cases are isolated and illustrated as separate .py examples.
+- In a Spark context, prefer Arrow → pandas and the simplest, widely understood API for most analysis and feature engineering. Use pandas-on-Spark when staying distributed; use Arrow to land in pandas DataFrames when moving off Spark.
+- For narrow hot paths that pandas cannot express efficiently, use NumPy or Numba in isolated kernels.
 - Then go into details: when and where pandas/NumPy serialize, what to avoid, and Spark-specific tips.
+
+Why pandas (over NumPy/Numba) for the majority of work:
+- Productivity and readability: rich DataFrame API, groupby/merge/reshape/time series; far fewer lines for common workloads
+- Ecosystem fit: scikit-learn, statsmodels, plotting, IO connectors, datetime/categorical tooling
+- Fewer footguns: alignment, missing data semantics, automatic dtype handling; easier review/maintenance for teams
+- End-to-end flow: Spark → Arrow → pandas is a first-class, well-supported path; pandas-on-Spark provides API parity when you need to stay distributed
+- Operational simplicity: no JIT warm-up, fewer dtype/signature pitfalls, easier debugging and testing
+
+When to deviate to NumPy/Numba:
+- Tight numeric kernels on large in-memory arrays where pure vectorization is possible or loops are unavoidable
+- Heavy math with simple dtypes that benefit from Numba’s nopython loops (and where you can amortize compile cost)
+- You’ve profiled the pipeline, verified a small portion dominates, and a kernel rewrite yields meaningful speedup
 
 This repo is organized to read “last page first”: start from framework choices and Arrow impact, then work backwards to serialization fundamentals, UI, and basics.
 
