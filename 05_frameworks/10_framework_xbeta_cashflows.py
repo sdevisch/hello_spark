@@ -26,6 +26,7 @@ import numpy as np
 import pandas as pd
 import psutil
 from typing import Dict, Tuple
+import os as _os
 
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
@@ -383,4 +384,17 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    if _os.environ.get("GENERATE_DOCS", "0") == "1":
+        import sys as _sys
+        ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..'))
+        if ROOT not in _sys.path:
+            _sys.path.insert(0, ROOT)
+        from utils.docgen import run_and_save_markdown
+
+        run_and_save_markdown(
+            markdown_path="docs/generated/05_frameworks_xbeta_cashflows_output.md",
+            title="Frameworks: Panel xbeta & cashflows comparison",
+            main_callable=main,
+        )
+    else:
+        main()

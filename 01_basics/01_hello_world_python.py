@@ -7,6 +7,9 @@ This script demonstrates basic Spark operations including RDD creation, transfor
 from pyspark.sql import SparkSession
 from pyspark import SparkContext, SparkConf
 import sys
+import os
+
+GENERATE_DOCS = os.environ.get("GENERATE_DOCS", "0") == "1"
 
 def main():
     # Initialize Spark Session
@@ -98,4 +101,18 @@ def main():
     spark.stop()
 
 if __name__ == "__main__":
-    main()
+    if GENERATE_DOCS:
+        # Ensure repo root on sys.path for utils import
+        ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        if ROOT not in sys.path:
+            sys.path.insert(0, ROOT)
+        # Deferred import to avoid circulars
+        from utils.docgen import run_and_save_markdown
+
+        run_and_save_markdown(
+            markdown_path="docs/generated/01_basics_output.md",
+            title="Basics: Spark Hello World (PySpark)",
+            main_callable=main,
+        )
+    else:
+        main()

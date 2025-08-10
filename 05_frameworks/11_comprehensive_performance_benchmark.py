@@ -30,6 +30,7 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.functions import col, avg, stddev, count, sum, sqrt, sin, cos, log, abs
 from pyspark.sql.types import *
+import os as _os
 
 class ComprehensiveBenchmark:
     def __init__(self, rows=2_000_000, cols=12):
@@ -534,4 +535,17 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if _os.environ.get("GENERATE_DOCS", "0") == "1":
+        import sys as _sys
+        ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..'))
+        if ROOT not in _sys.path:
+            _sys.path.insert(0, ROOT)
+        from utils.docgen import run_and_save_markdown
+
+        run_and_save_markdown(
+            markdown_path="docs/generated/05_frameworks_benchmark_output.md",
+            title="Frameworks: Comprehensive performance benchmark",
+            main_callable=main,
+        )
+    else:
+        main()

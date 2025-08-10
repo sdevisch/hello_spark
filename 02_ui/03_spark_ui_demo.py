@@ -8,6 +8,9 @@ from pyspark.sql import SparkSession
 import time
 import signal
 import sys
+import os
+
+GENERATE_DOCS = os.environ.get("GENERATE_DOCS", "0") == "1"
 
 def signal_handler(sig, frame):
     print('\n🛑 Received interrupt signal. Stopping Spark session...')
@@ -80,13 +83,28 @@ def main():
     print("💡 Press Ctrl+C to stop when you're done exploring")
     print("🌐 Spark UI: http://localhost:4040")
     
-    # Keep the session alive indefinitely
-    try:
-        while True:
-            time.sleep(60)
-            print(f"⏳ Session still active - UI available at http://localhost:4040")
-    except KeyboardInterrupt:
-        signal_handler(signal.SIGINT, None)
+    # Keep-alive loop; shorten or skip when generating docs
+    if GENERATE_DOCS:
+        print("⏳ Skipping long keep-alive for docs generation")
+    else:
+        try:
+            while True:
+                time.sleep(60)
+                print(f"⏳ Session still active - UI available at http://localhost:4040")
+        except KeyboardInterrupt:
+            signal_handler(signal.SIGINT, None)
 
 if __name__ == "__main__":
-    main()
+    if GENERATE_DOCS:
+        ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        if ROOT not in sys.path:
+            sys.path.insert(0, ROOT)
+        from utils.docgen import run_and_save_markdown
+
+        run_and_save_markdown(
+            markdown_path="docs/generated/02_ui_output.md",
+            title="Spark UI Demo: Sample jobs and UI exploration",
+            main_callable=main,
+        )
+    else:
+        main()

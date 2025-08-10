@@ -1060,4 +1060,17 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import os as _os, sys as _sys
+    if _os.environ.get("GENERATE_DOCS", "0") == "1":
+        ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..'))
+        if ROOT not in _sys.path:
+            _sys.path.insert(0, ROOT)
+        from utils.docgen import run_and_save_markdown
+
+        run_and_save_markdown(
+            markdown_path="docs/generated/05_frameworks_comparison_output.md",
+            title="Frameworks: Comprehensive comparison (Spark, pandas, NumPy, Numba)",
+            main_callable=main,
+        )
+    else:
+        main()
