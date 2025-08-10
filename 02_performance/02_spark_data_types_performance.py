@@ -17,8 +17,15 @@ Key comparisons:
 import time
 import numpy as np
 import pandas as pd
-import psutil
 import os
+import sys
+
+# Ensure repo root is importable for utils.* before imports that use it
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from utils.mem import get_process_memory_mb
 from decimal import Decimal
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
@@ -51,8 +58,7 @@ class SparkDataTypesDemo:
         
         self.spark.sparkContext.setLogLevel("WARN")
         
-        # Memory tracking setup
-        self.process = psutil.Process(os.getpid())
+        # Memory tracking setup (psutil-optional fallback via utils.mem)
         
         # Get Spark context for memory tracking
         self.sc = self.spark.sparkContext
@@ -63,7 +69,7 @@ class SparkDataTypesDemo:
         gc.collect()  # Force garbage collection for more accurate measurement
         
         # Get both process memory and Spark memory info
-        process_memory = self.process.memory_info().rss / 1024 / 1024
+        process_memory = get_process_memory_mb()
         
         # Try to get Spark storage memory info
         try:

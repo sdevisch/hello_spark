@@ -1,6 +1,6 @@
 # Frameworks: Conclusion first (Spark, pandas, NumPy, Numba)
 
-Generated: 2025-08-10 17:00 UTC
+Generated: 2025-08-10 22:53 UTC
 
 ## Scope
 
@@ -25,7 +25,7 @@ Conclusion and decision framework: when to stay in Spark, when to use Arrow→pa
 ✅ Spark pandas API available and functional!
    Test results: id       5
 value    5
-dtype: int64 rows, mean value: 3.520
+dtype: int64 rows, mean value: 4.623
 🌐 Spark UI (No Arrow): http://localhost:4040
 🌐 Spark UI (With Arrow): http://localhost:4041
 
@@ -37,89 +37,89 @@ dtype: int64 rows, mean value: 3.520
    - We'll convert to different frameworks for comparison
 ⏱️  Creating Spark DataFrame
    ✅ Created Spark DataFrame with 300,000 rows
-   ✅ 0.4514s | Memory: +0.000GB
+   ✅ 0.4331s | Memory: +0.000GB
 
 ============================================================
 🔄 CONVERTING TO DIFFERENT FRAMEWORKS
 ============================================================
 ⏱️  Spark → Pandas (with Arrow) - SERIALIZATION
-   ✅ 0.2633s | Memory: +0.073GB
+   ✅ 0.3666s | Memory: +0.074GB
 ⏱️  Spark → Pandas (no Arrow) - EXPENSIVE SERIALIZATION
-   ✅ 6.4085s | Memory: +0.092GB
+   ✅ 6.4466s | Memory: +0.085GB
 ⏱️  Pandas → NumPy arrays - MINIMAL SERIALIZATION
-   ✅ 0.0002s | Memory: +0.000GB
+   ✅ 0.0001s | Memory: +0.000GB
 ⏱️  Spark → Pandas-on-Spark API - NO SERIALIZATION
-   ✅ 0.0303s | Memory: +0.000GB
+   ✅ 0.0305s | Memory: +0.000GB
    ✅ Pandas-on-Spark conversion successful
 
 📊 CONVERSION SUMMARY:
-   pandas_arrow        : 0.2633s
-   pandas_no_arrow     : 6.4085s
-   numpy               : 0.0002s
-   pandas_on_spark     : 0.0303s
+   pandas_arrow        : 0.3666s
+   pandas_no_arrow     : 6.4466s
+   numpy               : 0.0001s
+   pandas_on_spark     : 0.0305s
 
 ============================================================
 🧮 ARITHMETIC OPERATIONS COMPARISON
 ============================================================
 ⏱️  Spark arithmetic (native) - NO SERIALIZATION
-   ✅ 0.0124s | Memory: +0.000GB
+   ✅ 0.0119s | Memory: +0.000GB
 ⏱️  Pandas arithmetic - NO SERIALIZATION (vectorized)
-   ✅ 0.0040s | Memory: +0.000GB
+   ✅ 0.0043s | Memory: +0.000GB
 ⏱️  NumPy arithmetic - NO SERIALIZATION (pure C)
-   ✅ 0.0010s | Memory: +0.005GB
+   ✅ 0.0011s | Memory: +0.007GB
 ⏱️  Jitted NumPy arithmetic - NO SERIALIZATION (compiled)
-   ✅ 0.0008s | Memory: +0.000GB
+   ✅ 0.0007s | Memory: +0.000GB
 ⏱️  Pandas-on-Spark arithmetic - MINIMAL SERIALIZATION
-   ✅ 0.3425s | Memory: +0.000GB
+   ✅ 0.3818s | Memory: +0.000GB
    ✅ Pandas-on-Spark arithmetic successful
 
 📊 ARITHMETIC PERFORMANCE COMPARISON:
-   spark          : 0.0124s (16.5x)
-   pandas         : 0.0040s (5.3x)
-   numpy          : 0.0010s (1.4x)
-   numba          : 0.0008s (1.0x)
-   pandas_on_spark: 0.3425s (455.9x)
+   spark          : 0.0119s (16.2x)
+   pandas         : 0.0043s (5.8x)
+   numpy          : 0.0011s (1.5x)
+   numba          : 0.0007s (1.0x)
+   pandas_on_spark: 0.3818s (518.8x)
 
 ============================================================
 📈 AGGREGATION OPERATIONS COMPARISON
 ============================================================
 ⏱️  Spark aggregations - NO SERIALIZATION (distributed)
-   ✅ 0.0178s | Memory: +0.000GB
+   ✅ 0.0241s | Memory: +0.000GB
 ⏱️  Pandas aggregations - NO SERIALIZATION (optimized)
-   ✅ 0.0047s | Memory: +0.000GB
+   ✅ 0.0054s | Memory: +0.000GB
 ⏱️  NumPy aggregations - NO SERIALIZATION (manual loops)
-   ✅ 0.0163s | Memory: +0.000GB
+   ✅ 0.0280s | Memory: +0.000GB
 ⏱️  Jitted NumPy aggregations - NO SERIALIZATION (compiled)
-   ✅ 0.0170s | Memory: +0.000GB
+   ✅ 0.0166s | Memory: +0.000GB
 
 📊 AGGREGATION PERFORMANCE COMPARISON:
-   spark          : 0.0178s (3.8x)
-   pandas         : 0.0047s (1.0x)
-   numpy          : 0.0163s (3.5x)
-   numba          : 0.0170s (3.6x)
+   spark          : 0.0241s (4.5x)
+   pandas         : 0.0054s (1.0x)
+   numpy          : 0.0280s (5.2x)
+   numba          : 0.0166s (3.1x)
 
 ============================================================
 🔬 COMPLEX OPERATIONS - SERIALIZATION ANALYSIS
 ============================================================
 ⏱️  Spark complex ops (window, math) - NO SERIALIZATION
-   ✅ 0.0274s | Memory: +0.000GB
+   ✅ 0.0249s | Memory: +0.000GB
 ⏱️  Pandas complex ops - NO SERIALIZATION (vectorized)
-   ✅ 0.0467s | Memory: +0.009GB
+   ✅ 0.0484s | Memory: +0.025GB
 ⏱️  NumPy complex ops - NO SERIALIZATION (pure C)
-   ✅ 0.0021s | Memory: +0.000GB
+   ✅ 0.0020s | Memory: +0.007GB
 
 ⚠️ OPERATIONS THAT CAUSE SERIALIZATION:
 ⏱️  Scalar extraction - SERIALIZATION (C → Python)
-   ✅ 0.0000s | Memory: +0.000GB
+   ✅ 0.0001s | Memory: +0.000GB
 ⏱️  Array → List conversion - MASS SERIALIZATION
    ✅ 0.0000s | Memory: +0.000GB
 ⏱️  DataFrame → String - FULL SERIALIZATION
-   ✅ 0.0032s | Memory: +0.000GB
+   ✅ 0.0041s | Memory: +0.000GB
 
 📊 COMPLEX OPERATIONS PERFORMANCE:
-   spark          : 0.0274s (13.3x)
-   pandas         : 0.0467s (22.7x)
-   numpy          : 0.0021s (1.0x)
+   spark          : 0.0249s (12.3x)
+   pandas         : 0.0484s (24.0x)
+   numpy          : 0.0020s (1.0x)
 
 ============================================================
 🏹 ARROW BENEFITS VS OVERHEAD ANALYSIS
@@ -131,157 +131,157 @@ dtype: int64 rows, mean value: 3.520
 
 🔍 Testing with 1,000 rows:
 ⏱️    No Arrow (1,000 rows)
-   ✅ 0.1483s | Memory: +0.001GB
+   ✅ 0.1510s | Memory: +0.001GB
 ⏱️    With Arrow (1,000 rows)
-   ✅ 0.0336s | Memory: +0.000GB
-    Arrow speedup (Spark → pandas): 4.4x
+   ✅ 0.0352s | Memory: +0.000GB
+    Arrow speedup (Spark → pandas): 4.3x
 ⏱️    Spark compute (1,000 rows)
-   ✅ 0.0695s | Memory: +0.000GB
+   ✅ 0.0838s | Memory: +0.000GB
 ⏱️    Convert (Arrow) pandas ready (1,000 rows)
-   ✅ 0.0281s | Memory: +0.000GB
+   ✅ 0.0303s | Memory: +0.000GB
 ⏱️    Pandas compute (1,000 rows)
    ✅ 0.0005s | Memory: +0.000GB
 ⏱️    Convert (No Arrow) pandas ready (1,000 rows)
-   ✅ 0.1307s | Memory: +0.000GB
+   ✅ 0.1301s | Memory: +0.000GB
 ⏱️    Pandas compute (No Arrow path) (1,000 rows)
-   ✅ 0.0005s | Memory: +0.000GB
+   ✅ 0.0006s | Memory: +0.000GB
 ⏱️    Prepare NumPy arrays (1,000 rows)
    ✅ 0.0000s | Memory: +0.000GB
 ⏱️    NumPy compute (1,000 rows)
-   ✅ 0.0000s | Memory: +0.000GB
+   ✅ 0.0001s | Memory: +0.000GB
 ⏱️    Jitted NumPy compute (1,000 rows)
    ✅ 0.0000s | Memory: +0.000GB
 ⏱️    Pandas-on-Spark compute (1,000 rows)
-   ✅ 0.3094s | Memory: +0.000GB
+   ✅ 0.3131s | Memory: +0.000GB
 
 🔍 Testing with 10,000 rows:
 ⏱️    No Arrow (10,000 rows)
-   ✅ 0.3366s | Memory: +0.002GB
+   ✅ 0.3685s | Memory: +0.003GB
 ⏱️    With Arrow (10,000 rows)
-   ✅ 0.0400s | Memory: +0.001GB
-    Arrow speedup (Spark → pandas): 8.4x
+   ✅ 0.0349s | Memory: +0.001GB
+    Arrow speedup (Spark → pandas): 10.6x
 ⏱️    Spark compute (10,000 rows)
-   ✅ 0.0592s | Memory: +0.000GB
+   ✅ 0.0608s | Memory: +0.000GB
 ⏱️    Convert (Arrow) pandas ready (10,000 rows)
-   ✅ 0.0357s | Memory: +0.001GB
+   ✅ 0.0363s | Memory: +0.001GB
 ⏱️    Pandas compute (10,000 rows)
-   ✅ 0.0006s | Memory: +0.000GB
+   ✅ 0.0005s | Memory: +0.000GB
 ⏱️    Convert (No Arrow) pandas ready (10,000 rows)
-   ✅ 0.2940s | Memory: +0.001GB
+   ✅ 0.3181s | Memory: +0.001GB
 ⏱️    Pandas compute (No Arrow path) (10,000 rows)
-   ✅ 0.0007s | Memory: +0.000GB
+   ✅ 0.0006s | Memory: +0.000GB
 ⏱️    Prepare NumPy arrays (10,000 rows)
-   ✅ 0.0000s | Memory: +0.000GB
+   ✅ 0.0001s | Memory: +0.000GB
 ⏱️    NumPy compute (10,000 rows)
    ✅ 0.0001s | Memory: +0.000GB
 ⏱️    Jitted NumPy compute (10,000 rows)
    ✅ 0.0000s | Memory: +0.000GB
 ⏱️    Pandas-on-Spark compute (10,000 rows)
-   ✅ 0.2803s | Memory: +0.000GB
+   ✅ 0.2810s | Memory: +0.000GB
 
 🔍 Testing with 50,000 rows:
 ⏱️    No Arrow (50,000 rows)
-   ✅ 1.0511s | Memory: +0.007GB
+   ✅ 1.0893s | Memory: +0.007GB
 ⏱️    With Arrow (50,000 rows)
-   ✅ 0.0665s | Memory: +0.005GB
-    Arrow speedup (Spark → pandas): 15.8x
+   ✅ 0.0536s | Memory: +0.009GB
+    Arrow speedup (Spark → pandas): 20.3x
 ⏱️    Spark compute (50,000 rows)
-   ✅ 0.0828s | Memory: +0.000GB
+   ✅ 0.1169s | Memory: +0.000GB
 ⏱️    Convert (Arrow) pandas ready (50,000 rows)
-   ✅ 0.0680s | Memory: +0.004GB
+   ✅ 0.0705s | Memory: +0.003GB
 ⏱️    Pandas compute (50,000 rows)
    ✅ 0.0008s | Memory: +0.000GB
 ⏱️    Convert (No Arrow) pandas ready (50,000 rows)
-   ✅ 1.0855s | Memory: +0.004GB
+   ✅ 1.0669s | Memory: +0.004GB
 ⏱️    Pandas compute (No Arrow path) (50,000 rows)
-   ✅ 0.0007s | Memory: +0.000GB
+   ✅ 0.0008s | Memory: +0.000GB
 ⏱️    Prepare NumPy arrays (50,000 rows)
    ✅ 0.0000s | Memory: +0.000GB
 ⏱️    NumPy compute (50,000 rows)
-   ✅ 0.0001s | Memory: +0.000GB
+   ✅ 0.0002s | Memory: +0.000GB
 ⏱️    Jitted NumPy compute (50,000 rows)
    ✅ 0.0000s | Memory: +0.000GB
 ⏱️    Pandas-on-Spark compute (50,000 rows)
-   ✅ 0.2636s | Memory: +0.000GB
+   ✅ 0.2914s | Memory: +0.000GB
 
 🔍 Testing with 100,000 rows:
 ⏱️    No Arrow (100,000 rows)
-   ✅ 1.9777s | Memory: +0.011GB
+   ✅ 2.1087s | Memory: +0.010GB
 ⏱️    With Arrow (100,000 rows)
-   ✅ 0.0873s | Memory: +0.014GB
-    Arrow speedup (Spark → pandas): 22.6x
+   ✅ 0.0627s | Memory: +0.007GB
+    Arrow speedup (Spark → pandas): 33.6x
 ⏱️    Spark compute (100,000 rows)
-   ✅ 0.0866s | Memory: +0.000GB
+   ✅ 0.0889s | Memory: +0.000GB
 ⏱️    Convert (Arrow) pandas ready (100,000 rows)
-   ✅ 0.0787s | Memory: +0.019GB
+   ✅ 0.0636s | Memory: +0.005GB
 ⏱️    Pandas compute (100,000 rows)
-   ✅ 0.0017s | Memory: +0.000GB
+   ✅ 0.0015s | Memory: -0.001GB
 ⏱️    Convert (No Arrow) pandas ready (100,000 rows)
-   ✅ 1.9761s | Memory: +0.012GB
+   ✅ 1.9803s | Memory: +0.019GB
 ⏱️    Pandas compute (No Arrow path) (100,000 rows)
-   ✅ 0.0012s | Memory: +0.000GB
+   ✅ 0.0013s | Memory: +0.000GB
 ⏱️    Prepare NumPy arrays (100,000 rows)
-   ✅ 0.0000s | Memory: +0.000GB
+   ✅ 0.0002s | Memory: +0.000GB
 ⏱️    NumPy compute (100,000 rows)
-   ✅ 0.0005s | Memory: +0.000GB
+   ✅ 0.0004s | Memory: +0.000GB
 ⏱️    Jitted NumPy compute (100,000 rows)
    ✅ 0.0001s | Memory: +0.000GB
 ⏱️    Pandas-on-Spark compute (100,000 rows)
-   ✅ 0.2467s | Memory: +0.000GB
+   ✅ 0.3299s | Memory: +0.000GB
 
 📊 ARROW SCALING ANALYSIS:
     1,000 rows:
-      Spark→pandas Arrow speedup:  4.4x
-      Compute spark          : 0.0695s
+      Spark→pandas Arrow speedup:  4.3x
+      Compute spark          : 0.0838s
       Compute pandas         : 0.0005s
-      Compute numpy          : 0.0000s
+      Compute numpy          : 0.0001s
       Compute numba          : 0.0000s
-      Compute pandas_on_spark: 0.3094s
-      Total pandas (Arrow): 0.0341s
-      Total pandas (NoArrow): 0.1489s
-      Total NumPy (Arrow):  0.0337s
-      Total NumPy (NoArrow):0.1484s
-      Total Numba (Arrow):  0.0336s
-      Total Numba (NoArrow):0.1483s
+      Compute pandas_on_spark: 0.3131s
+      Total pandas (Arrow): 0.0357s
+      Total pandas (NoArrow): 0.1516s
+      Total NumPy (Arrow):  0.0353s
+      Total NumPy (NoArrow):0.1510s
+      Total Numba (Arrow):  0.0352s
+      Total Numba (NoArrow):0.1510s
    10,000 rows:
-      Spark→pandas Arrow speedup:  8.4x
-      Compute spark          : 0.0592s
-      Compute pandas         : 0.0006s
+      Spark→pandas Arrow speedup: 10.6x
+      Compute spark          : 0.0608s
+      Compute pandas         : 0.0005s
       Compute numpy          : 0.0001s
       Compute numba          : 0.0000s
-      Compute pandas_on_spark: 0.2803s
-      Total pandas (Arrow): 0.0406s
-      Total pandas (NoArrow): 0.3373s
-      Total NumPy (Arrow):  0.0400s
-      Total NumPy (NoArrow):0.3367s
-      Total Numba (Arrow):  0.0400s
-      Total Numba (NoArrow):0.3366s
+      Compute pandas_on_spark: 0.2810s
+      Total pandas (Arrow): 0.0354s
+      Total pandas (NoArrow): 0.3691s
+      Total NumPy (Arrow):  0.0350s
+      Total NumPy (NoArrow):0.3686s
+      Total Numba (Arrow):  0.0349s
+      Total Numba (NoArrow):0.3686s
    50,000 rows:
-      Spark→pandas Arrow speedup: 15.8x
-      Compute spark          : 0.0828s
+      Spark→pandas Arrow speedup: 20.3x
+      Compute spark          : 0.1169s
       Compute pandas         : 0.0008s
-      Compute numpy          : 0.0001s
+      Compute numpy          : 0.0002s
       Compute numba          : 0.0000s
-      Compute pandas_on_spark: 0.2636s
-      Total pandas (Arrow): 0.0672s
-      Total pandas (NoArrow): 1.0519s
-      Total NumPy (Arrow):  0.0666s
-      Total NumPy (NoArrow):1.0513s
-      Total Numba (Arrow):  0.0665s
-      Total Numba (NoArrow):1.0512s
+      Compute pandas_on_spark: 0.2914s
+      Total pandas (Arrow): 0.0544s
+      Total pandas (NoArrow): 1.0901s
+      Total NumPy (Arrow):  0.0538s
+      Total NumPy (NoArrow):1.0895s
+      Total Numba (Arrow):  0.0536s
+      Total Numba (NoArrow):1.0894s
    100,000 rows:
-      Spark→pandas Arrow speedup: 22.6x
-      Compute spark          : 0.0866s
-      Compute pandas         : 0.0017s
-      Compute numpy          : 0.0005s
+      Spark→pandas Arrow speedup: 33.6x
+      Compute spark          : 0.0889s
+      Compute pandas         : 0.0015s
+      Compute numpy          : 0.0004s
       Compute numba          : 0.0001s
-      Compute pandas_on_spark: 0.2467s
-      Total pandas (Arrow): 0.0890s
-      Total pandas (NoArrow): 1.9789s
-      Total NumPy (Arrow):  0.0879s
-      Total NumPy (NoArrow):1.9782s
-      Total Numba (Arrow):  0.0874s
-      Total Numba (NoArrow):1.9778s
+      Compute pandas_on_spark: 0.3299s
+      Total pandas (Arrow): 0.0641s
+      Total pandas (NoArrow): 2.1100s
+      Total NumPy (Arrow):  0.0631s
+      Total NumPy (NoArrow):2.1091s
+      Total Numba (Arrow):  0.0627s
+      Total Numba (NoArrow):2.1088s
 
 ============================================================
 🏆 COMPREHENSIVE FRAMEWORK COMPARISON SUMMARY
@@ -300,13 +300,13 @@ dtype: int64 rows, mean value: 3.520
 
 🔄 SERIALIZATION COSTS:
    Conversion times from Spark:
-     pandas_arrow        : 0.2633s
-     pandas_no_arrow     : 6.4085s
-     numpy               : 0.0002s
-     pandas_on_spark     : 0.0303s
+     pandas_arrow        : 0.3666s
+     pandas_no_arrow     : 6.4466s
+     numpy               : 0.0001s
+     pandas_on_spark     : 0.0305s
 
 🏹 ARROW BENEFITS:
-   Average Arrow speedup: 12.8x
+   Average Arrow speedup: 17.2x
    • Most beneficial for: Large datasets, wide tables
    • Less beneficial for: Small datasets, simple operations
 

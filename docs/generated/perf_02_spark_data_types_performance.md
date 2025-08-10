@@ -1,6 +1,6 @@
 # Performance 02: Data types and efficiency
 
-Generated: 2025-08-10 17:02 UTC
+Generated: 2025-08-10 22:50 UTC
 
 ## Scope
 
@@ -23,16 +23,16 @@ Cross-cutting performance practices: IO formats, UDF vs native, caching, partiti
 Testing: Everything as STRING types...
 Testing: CORRECT data types...
 🔴 Strings approach:
-   Load time: 3.052s
-   Operation time: 0.456s
-   Total time: 3.508s
+   Load time: 2.966s
+   Operation time: 0.521s
+   Total time: 3.487s
    Estimated DataFrame size: 85.8 MB
 🟢 Correct types approach:
-   Load time: 2.396s
-   Operation time: 0.623s
-   Total time: 3.019s
+   Load time: 2.636s
+   Operation time: 0.544s
+   Total time: 3.180s
    Estimated DataFrame size: 29.1 MB
-⚡ Speedup with correct types: 1.16x
+⚡ Speedup with correct types: 1.10x
 
 🔸 SCENARIO 2: 64-bit vs Right-sized Data Types
 ----------------------------------------
@@ -40,16 +40,16 @@ Creating optimized datasets for fair comparison...
 Testing: OVERSIZED 64-bit types...
 Testing: RIGHT-SIZED data types...
 🔴 Oversized 64-bit types:
-   Load time: 0.390s
-   Operation time: 0.463s
-   Total time: 0.853s
+   Load time: 0.357s
+   Operation time: 0.453s
+   Total time: 0.810s
    Estimated DataFrame size: 32.9 MB
 🟢 Right-sized types:
-   Load time: 0.269s
-   Operation time: 0.315s
-   Total time: 0.584s
+   Load time: 0.165s
+   Operation time: 0.321s
+   Total time: 0.486s
    Estimated DataFrame size: 17.2 MB
-⚡ Speedup with right-sized types: 1.46x
+⚡ Speedup with right-sized types: 1.67x
 💾 Memory savings: 47.8%
 
 🔸 SCENARIO 3: Join Performance Impact
@@ -57,9 +57,9 @@ Testing: RIGHT-SIZED data types...
 📋 Creating sample datasets...
 Testing: STRING-based join...
 Testing: INTEGER-based join...
-🔴 String-based join: 1.661s
-🟢 Integer-based join: 1.514s
-⚡ Join speedup: 1.10x
+🔴 String-based join: 1.568s
+🟢 Integer-based join: 1.574s
+⚡ Join speedup: 1.00x
 
 📊 Creating performance visualizations...
 
@@ -68,17 +68,17 @@ Testing: INTEGER-based join...
 ============================================================
 
 🔸 STRINGS vs CORRECT TYPES:
-   Performance improvement: 1.16x faster
-   Time saved: 0.489s
+   Performance improvement: 1.10x faster
+   Time saved: 0.308s
    Memory difference: 56.7MB
 
 🔸 64-BIT vs RIGHT-SIZED TYPES:
-   Performance improvement: 1.46x faster
-   Time saved: 0.269s
+   Performance improvement: 1.67x faster
+   Time saved: 0.324s
    Memory saved: 47.8%
 
 🔸 JOIN PERFORMANCE:
-   Integer vs String join speedup: 1.10x faster
+   Integer vs String join speedup: 1.00x faster
 
 💡 KEY TAKEAWAYS:
    • Use correct data types instead of strings for significant performance gains

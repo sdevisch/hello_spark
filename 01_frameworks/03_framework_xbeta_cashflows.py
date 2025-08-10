@@ -20,10 +20,16 @@ Data starts in Spark; all conversions measure serialization costs.
 """
 
 import os
+import sys
 import time
 import numpy as np
 import pandas as pd
-import psutil
+# Ensure repo root for utils.*
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from utils.mem import get_total_memory_gb, get_process_memory_mb
 from typing import Dict, Tuple
 import os as _os
 
@@ -77,8 +83,7 @@ class XbetaCashflowComparison:
 
     # -------- infra helpers --------
     def get_memory_usage(self) -> float:
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024 ** 3)
+        return get_process_memory_mb() / 1024.0
 
     def time_op(self, name: str, fn, *args, **kwargs) -> Tuple[object, float]:
         start_mem = self.get_memory_usage()
@@ -371,7 +376,7 @@ class XbetaCashflowComparison:
 def main() -> None:
     print("🚀 Starting Xbeta & Cashflows Panel Comparison...")
     print("📚 Docs index: docs/index.md")
-    memory_gb = psutil.virtual_memory().total / (1024 ** 3)
+    memory_gb = get_total_memory_gb()
     print(f"💻 System memory: {memory_gb:.1f} GB")
     if memory_gb < 8:
         rows = 100_000

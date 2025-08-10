@@ -51,6 +51,10 @@ def run_and_save_markdown(markdown_path: str, title: str, main_callable) -> None
     error: Exception | None = None
 
     try:
+        # Ensure project root is importable for utils.* imports in scripts
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(markdown_path), "..", ".."))
+        if repo_root not in sys.path:
+            sys.path.insert(0, repo_root)
         main_callable()
     except SystemExit:
         # Allow scripts that call sys.exit to still generate docs

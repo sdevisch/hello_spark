@@ -31,8 +31,15 @@ Scenario: Data starts in Spark; we compare staying in Spark vs converting.
 import time
 import numpy as np
 import pandas as pd
-import psutil
 import os
+import sys
+
+# Ensure repo root is importable for `utils.*` before any imports that use it
+_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
+
+from utils.mem import get_total_memory_gb, get_process_memory_mb
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.functions import col
@@ -141,9 +148,8 @@ class FrameworkComparison:
         print(f"🌐 Spark UI (With Arrow): http://localhost:4041")
 
     def get_memory_usage(self):
-        """Get current memory usage in GB"""
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024**3)
+        """Get current memory usage in GB (psutil-optional via utils.mem)."""
+        return get_process_memory_mb() / 1024.0
 
     def time_operation(self, name, func, *args, **kwargs):
         """Time an operation with memory tracking"""
@@ -1047,8 +1053,8 @@ def main():
     print("🚀 Starting Comprehensive Framework Comparison...")
     print("📚 Docs index: docs/index.md")
     
-    # Check system resources
-    memory_gb = psutil.virtual_memory().total / (1024**3)
+    # Check system resources (psutil-optional)
+    memory_gb = get_total_memory_gb()
     print(f"💻 System: {memory_gb:.1f}GB RAM")
     
     # Check dependencies
@@ -1073,10 +1079,11 @@ def main():
 
 if __name__ == "__main__":
     import os as _os, sys as _sys
+    # Make repo root importable for utils.* when running directly or via docgen
+    ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..'))
+    if ROOT not in _sys.path:
+        _sys.path.insert(0, ROOT)
     if _os.environ.get("GENERATE_DOCS", "0") == "1":
-        ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), '..'))
-        if ROOT not in _sys.path:
-            _sys.path.insert(0, ROOT)
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(

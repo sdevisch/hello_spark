@@ -1,6 +1,6 @@
 # Serialization 03: NumPy boundaries and best practices
 
-Generated: 2025-08-10 17:02 UTC
+Generated: 2025-08-10 22:51 UTC
 
 ## Scope
 
@@ -28,7 +28,7 @@ NumPy C↔Python boundaries and best practices to avoid Python crossings.
    - Focus: When does serialization happen within NumPy operations?
 ⏱️  Creating Spark DF and converting to NumPy
    📤 Converting Spark → pandas → NumPy (SERIALIZATION)
-   ✅ 2.959837s | Memory: +0.081GB
+   ✅ 2.882900s | Memory: +0.083GB
 
 ✅ Started with Spark DataFrame, converted to 7 NumPy arrays
 💾 Total NumPy size: 3.9 MB
@@ -44,19 +44,19 @@ NumPy C↔Python boundaries and best practices to avoid Python crossings.
    - Boolean indexing and masking
    - Array reshaping and transposing
 ⏱️  Arithmetic operations (*, +, sqrt, sin, comparisons)
-   ✅ 0.001079s | Memory: +0.002GB
+   ✅ 0.000958s | Memory: +0.001GB
 ⏱️  Slicing & reshaping (views, boolean indexing)
-   ✅ 0.000439s | Memory: +0.000GB
+   ✅ 0.000438s | Memory: +0.000GB
 ⏱️  Aggregations (mean, std, median, percentile)
-   ✅ 0.002202s | Memory: +0.000GB
+   ✅ 0.001966s | Memory: +0.000GB
 ⏱️  Advanced operations (dot, sort, exp, log, where)
-   ✅ 0.000553s | Memory: +0.000GB
+   ✅ 0.000523s | Memory: +0.000GB
 
 🎯 NO-SERIALIZATION OPERATIONS PERFORMANCE:
-   Arithmetic operations:     0.001079s
-   Slicing & reshaping:       0.000439s
-   Aggregations:              0.002202s
-   Advanced operations:       0.000553s
+   Arithmetic operations:     0.000958s
+   Slicing & reshaping:       0.000438s
+   Aggregations:              0.001966s
+   Advanced operations:       0.000523s
    💡 All operations stay in C - blazing fast!
 
 ==================================================
@@ -69,15 +69,15 @@ NumPy C↔Python boundaries and best practices to avoid Python crossings.
    - String representations and printing
    - Some NumPy functions that return Python objects
 ⏱️  Scalar extraction (array[0], array[-1]) - SERIALIZATION
-   ✅ 0.000018s | Memory: +0.000GB
+   ✅ 0.000014s | Memory: +0.000GB
 ⏱️  Array to list conversion (.tolist()) - MASS SERIALIZATION
-   ✅ 0.000005s | Memory: +0.000GB
+   ✅ 0.000004s | Memory: +0.000GB
 ⏱️  String representation (str, repr) - FULL SERIALIZATION
    ✅ 0.000172s | Memory: +0.000GB
 ⏱️  Pickling operations (serialize/deserialize) - SERIALIZATION
-   ✅ 0.000046s | Memory: +0.000GB
+   ✅ 0.000040s | Memory: +0.000GB
 ⏱️  Memory analysis (views vs copies vs Python objects)
-   ✅ 0.000084s | Memory: +0.000GB
+   ✅ 0.000025s | Memory: +0.000GB
 
 💾 MEMORY USAGE COMPARISON (for 100 float64 elements):
    NumPy view:        80 bytes per element
@@ -86,11 +86,11 @@ NumPy C↔Python boundaries and best practices to avoid Python crossings.
    Python overhead:   -100% more memory!
 
 ⚠️  SERIALIZATION BOUNDARIES PERFORMANCE:
-   Scalar extraction:     0.000018s
-   List conversion:       0.000005s
+   Scalar extraction:     0.000014s
+   List conversion:       0.000004s
    String operations:     0.000172s
-   Pickling operations:   0.000046s
-   Memory analysis:       0.000084s
+   Pickling operations:   0.000040s
+   Memory analysis:       0.000025s
    💡 These operations cross the C/Python boundary!
 
 ==================================================
@@ -101,16 +101,16 @@ NumPy C↔Python boundaries and best practices to avoid Python crossings.
    - NumPy list conversion: Moderate (all elements)
    - Spark toPandas(): Heavy (inter-process + format conversion)
 ⏱️  Create Spark DataFrame from NumPy
-   ✅ 0.036242s | Memory: +0.000GB
+   ✅ 0.033136s | Memory: +0.000GB
 ⏱️  NumPy boundary operations (scalars + lists)
-   ✅ 0.000017s | Memory: +0.000GB
+   ✅ 0.000016s | Memory: +0.000GB
 ⏱️  Spark → pandas → NumPy conversion
-   ✅ 0.502619s | Memory: +0.000GB
+   ✅ 0.449133s | Memory: +0.000GB
 
 ⚖️  SERIALIZATION COST COMPARISON:
-   NumPy boundaries (1000 elements):   0.000017s
-   Spark serialization (1000 elements): 0.502619s
-   Spark overhead factor:               29279.7x
+   NumPy boundaries (1000 elements):   0.000016s
+   Spark serialization (1000 elements): 0.449133s
+   Spark overhead factor:               28542.4x
    💡 Spark serialization is much heavier than NumPy boundaries!
 
 ==================================================
@@ -123,19 +123,19 @@ NumPy C↔Python boundaries and best practices to avoid Python crossings.
    - Keep computations in NumPy as long as possible
    - Use views instead of copies when possible
 ⏱️  Good practices (vectorized, stay in NumPy)
-   ✅ 0.000553s | Memory: +0.000GB
+   ✅ 0.000662s | Memory: +0.000GB
 ⏱️  Bad practices (loops, lists, conversions)
-   ✅ 0.001177s | Memory: +0.000GB
+   ✅ 0.001202s | Memory: +0.000GB
 
 📊 PRACTICE COMPARISON:
-   Good practices (vectorized):    0.000553s
-   Bad practices (serialization):  0.001177s
-   Performance difference:         2.1x slower
+   Good practices (vectorized):    0.000662s
+   Bad practices (serialization):  0.001202s
+   Performance difference:         1.8x slower
    💡 Vectorized operations are much faster!
 
 🎯 RESULTS VERIFICATION:
-   Good method count: 50182
-   Bad method count:  4909
+   Good method count: 49834
+   Bad method count:  4954
    Results match:     False
    💡 Same results, but vastly different performance!
 
@@ -165,7 +165,7 @@ NumPy C↔Python boundaries and best practices to avoid Python crossings.
    1. NumPy scalar extraction     (single element)
    2. NumPy list conversion       (all elements)
    3. Spark → pandas conversion   (inter-process + format)
-   📊 Spark overhead: 29279.7x vs NumPy boundaries
+   📊 Spark overhead: 28542.4x vs NumPy boundaries
 
 💡 PRACTICAL GUIDELINES:
    ✅ DO: Use vectorized operations
@@ -174,7 +174,7 @@ NumPy C↔Python boundaries and best practices to avoid Python crossings.
    ✅ DO: Use array slicing over list conversion
    ❌ AVOID: Python loops over arrays
    ❌ AVOID: Unnecessary .tolist() conversions
-   📊 Performance difference: 2.1x
+   📊 Performance difference: 1.8x
 
 🎯 DECISION FRAMEWORK:
    • Single values needed → Use scalar extraction

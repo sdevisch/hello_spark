@@ -48,3 +48,5 @@ src_managed/
 # Assembly JARs (keep these out unless specifically needed)
 *.jar
 !project/bootstrap/
+
+.venv311/
