@@ -1,6 +1,10 @@
-# Hello World with Apache Spark
+# Hello Spark: A practical guide with runnable examples and summaries
 
-This repository contains Hello World examples for Apache Spark in both Python (PySpark) and Scala. These examples demonstrate basic Spark operations including RDD transformations, actions, DataFrame operations, and SQL queries.
+This repository is an end-to-end learning path for Apache Spark and related Python tooling. Each part has:
+- A runnable script that demonstrates the concepts
+- A concise markdown overview in `docs/` so you can learn without running code
+
+Start with the overview docs, then optionally run the scripts.
 
 ## Prerequisites
 
@@ -31,10 +35,79 @@ This repository contains Hello World examples for Apache Spark in both Python (P
    pip install -r requirements.txt
    ```
 
-3. **Run the Python example**:
+3. **Run the first Python example (optional)**:
    ```bash
-   python hello_world_python.py
+   python 01_basics/01_hello_world_python.py
    ```
+
+## Repository layout (Python)
+
+- `01_basics/`
+  - `01_hello_world_python.py` — Basic RDD, DataFrame, and SQL examples
+- `docs/`
+  - `01_basics.md` — overview
+  - `02_ui.md` — overview
+  - `03_serialization.md` — overview
+  - `04_performance.md` — overview
+  - `05_frameworks.md` — overview
+  - `generated/` — auto-generated console outputs for each part
+- `02_ui/`
+  - `03_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
+- `03_serialization/`
+  - `04_observe_serialization.py` — Use explain() and the UI to spot serialization
+  - `05_python_serialization_demo.py` — Arrow vs non-Arrow; UDF impact
+  - `06_numpy_serialization_focus_clean.py` — Start in Spark; stay vs convert
+  - `07_numpy_serialization_nuances.py` — NumPy C↔Python boundaries
+- `04_performance/`
+  - `08_spark_performance_demo.py` — I/O, UDFs, caching, partitioning, broadcast, persistence
+  - `09_spark_data_types_performance.py` — Data types: correctness, right-sizing, joins
+- `05_frameworks/`
+  - `10_framework_xbeta_cashflows.py` — Panel data: xbeta, cashflows, rolling windows
+  - `11_comprehensive_performance_benchmark.py` — End-to-end framework benchmark
+  - `12_comprehensive_framework_comparison.py` — Full comparison incl. Arrow analysis
+
+## Recommended run sequence (Python)
+
+1. Basics
+   - Read: `docs/01_basics.md`
+   - Output: `docs/generated/01_basics_output.md`
+   ```bash
+   python 01_basics/01_hello_world_python.py
+   ```
+2. Spark UI
+   - Read: `docs/02_ui.md`
+   - Output: `docs/generated/02_ui_output.md`
+   ```bash
+   python 02_ui/03_spark_ui_demo.py
+   ```
+3. Serialization fundamentals
+   - Read: `docs/03_serialization.md`
+   - Outputs: `docs/generated/03_serialization_*_output.md`
+   ```bash
+   python 03_serialization/04_observe_serialization.py
+   python 03_serialization/05_python_serialization_demo.py
+   python 03_serialization/06_numpy_serialization_focus_clean.py
+   python 03_serialization/07_numpy_serialization_nuances.py
+   ```
+4. Performance patterns
+   - Read: `docs/04_performance.md`
+   - Outputs: `docs/generated/04_*_output.md`
+   ```bash
+   python 04_performance/08_spark_performance_demo.py
+   python 04_performance/09_spark_data_types_performance.py
+   ```
+5. Framework comparisons
+   - Read: `docs/05_frameworks.md`
+   - Outputs: `docs/generated/05_frameworks_*_output.md`
+   ```bash
+   python 05_frameworks/10_framework_xbeta_cashflows.py
+   python 05_frameworks/11_comprehensive_performance_benchmark.py
+   python 05_frameworks/12_comprehensive_framework_comparison.py
+   ```
+
+Notes:
+- Some scripts size datasets based on available RAM and may take several minutes.
+- Arrow optimizations require `pyarrow` (included in `requirements.txt`).
 
 ### Scala Setup
 
@@ -60,9 +133,9 @@ This repository contains Hello World examples for Apache Spark in both Python (P
    spark-submit target/scala-2.12/HelloWorldSpark-assembly-1.0.jar
    ```
 
-## What the Examples Demonstrate
+## What the examples demonstrate
 
-Both examples showcase the following Spark concepts:
+Across the path you will see:
 
 1. **Basic RDD Operations**
    - Creating RDDs from collections
@@ -83,8 +156,7 @@ Both examples showcase the following Spark concepts:
    - Running SQL queries on DataFrames
 
 5. **Functional Programming** (Scala example)
-   - Chaining operations
-   - Immutable data transformations
+   - Chaining operations; immutable data transformations
 
 ## Expected Output
 
@@ -127,7 +199,7 @@ While the examples are running, you can access the Spark UI at:
 
 This provides insights into job execution, stages, and performance metrics.
 
-## Next Steps
+## Next steps
 
 After running these examples, you might want to explore:
 
