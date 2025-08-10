@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 """
-Comprehensive Framework Comparison: NumPy vs Spark.Pandas vs Pandas vs Jitted NumPy
-==================================================================================
+Comprehensive Framework Comparison: Start with the conclusion
+=============================================================
 
-This script demonstrates a realistic scenario comparing four computational frameworks:
-1. NumPy (vectorized C operations)
-2. Spark with pandas API (distributed computing with Arrow optimization)
-3. Regular pandas (single-machine optimized operations)
-4. Jitted NumPy with Numba (JIT-compiled operations)
+Main conclusion (last-page-first):
+- In a Spark context, first preference is: stay in Spark with native functions. When moving to a single machine, use Arrow to convert to pandas and keep operations vectorized in pandas.
+- Only use NumPy / jitted NumPy (Numba) for targeted kernels that pandas cannot express efficiently. Those are niche and isolated.
+
+This script demonstrates a realistic scenario comparing four frameworks:
+1. Spark (native) and pandas API on Spark
+2. Pandas (Arrow vs no Arrow conversions)
+3. NumPy (vectorized C operations)
+4. Jitted NumPy with Numba (specialized kernels)
 
 Focus Areas:
-- Common data operations across all frameworks
-- When serialization occurs and performance impact
+- Common data operations across frameworks
+- Where serialization occurs and the impact
 - Arrow benefits vs overhead
 - JIT compilation advantages and costs
-- Realistic decision framework for choosing the right tool
+- Decision framework for choosing the right tool
 
-Scenario: Data starts in Spark, we compare staying in Spark vs converting to other frameworks
+Scenario: Data starts in Spark; we compare staying in Spark vs converting.
 """
 
 import time
@@ -947,6 +951,8 @@ class FrameworkComparison:
         print("="*60)
         
         print("\n🎯 KEY FINDINGS:")
+        print("   • In Spark: prefer native Spark. If converting, use Arrow → pandas and keep vectorized.")
+        print("   • NumPy/Numba: use only for narrow hotspots that pandas cannot express efficiently.")
         
         print("\n⚡ PERFORMANCE HIERARCHY (typical):")
         print("   1. Jitted NumPy (Numba)   - Fastest computation")

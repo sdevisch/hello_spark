@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Numbox Dynamic DAG Demo: Runtime-Configurable Feature Graphs
+Appendix: Numbox Dynamic DAG Demo (reconfigurable pipelines)
 ===========================================================
 
 Goal: demonstrate scenarios that benefit Numbox's Node/Any/Proxy/Work model:

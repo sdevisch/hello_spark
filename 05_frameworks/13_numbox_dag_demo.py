@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Numbox DAG Demo: Extending Numba with Numbox Node/Work/Proxy
-===========================================================
+Appendix: Numbox DAG Demo (advanced, optional)
+==============================================
 
 This script demonstrates how to build a complex DAG of computations on top of
 NumPy/Numba and then execute it using Numbox primitives for better structure
@@ -27,7 +27,7 @@ For each path, it benchmarks:
 It prints conversion, preparation, and compute timings, and can emit a
 markdown report via the GENERATE_DOCS hook.
 
-Reference: Numbox toolbox for low-level numba utilities [numbox].
+Reference: Numbox toolbox for low-level numba utilities [numbox]. Use when you benefit from DAG structuring and JIT reuse; not required for typical Spark↔pandas pipelines.
 
 [numbox]: https://github.com/Goykhman/numbox
 """

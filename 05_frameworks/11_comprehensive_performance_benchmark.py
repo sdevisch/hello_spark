@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
-Comprehensive Performance Benchmark: Spark Pandas vs Regular Pandas vs NumPy vs Numba
-====================================================================================
+Comprehensive Performance Benchmark (supporting details after the conclusion)
+============================================================================
 
-This benchmark compares performance across different computational frameworks using
-identical large datasets and operations. Tests include:
+This benchmark supports the main guidance:
+- Prefer Spark native and Arrow→pandas for most tasks; use NumPy/Numba for niche kernels.
+
+It compares performance across frameworks using identical large datasets and operations. Tests include:
 
 1. Spark DataFrame operations (with/without Arrow)
 2. Regular pandas DataFrame operations  

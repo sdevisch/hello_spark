@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Framework XBeta & Cashflows: Spark vs Pandas vs NumPy vs Jitted NumPy
-=====================================================================
+Framework XBeta & Cashflows (appendix case study)
+=================================================
 
 This script builds a realistic panel (entities × days) dataset in Spark,
 then compares computing:
@@ -11,11 +11,10 @@ then compares computing:
 - Cash flow_t = revenue_t * sigmoid(xbeta_t)
 - Rolling 30-day cash flow per entity (sliding window)
 
-Frameworks compared:
-1. Spark (native, Window functions)
-2. Pandas (groupby + rolling)
-3. NumPy (vectorized for xbeta; rolling via Numba)
-4. Jitted NumPy (Numba) sliding window per-entity
+Frameworks compared (supporting the main guidance):
+1. Spark (native, Window functions) — baseline
+2. Pandas (groupby + rolling) — Arrow→pandas path
+3. NumPy / Numba — niche rolling kernel illustration
 
 Data starts in Spark; all conversions measure serialization costs.
 """
