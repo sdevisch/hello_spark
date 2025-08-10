@@ -7,6 +7,7 @@ How to read this (Pyramid Principle):
 Reading order and scope
 
 1) Frameworks — What to use and why (start here)
+  - Overview doc: 01_frameworks.md
 - Scope: conclusions and decision framework; when to stay in Spark, when to use Arrow→pandas, and when to isolate NumPy/Numba kernels.
 - Not covered: low-level serialization details or generic perf tips (see below).
   - [01_frameworks_conclusion.md](generated/01_frameworks_conclusion.md)
@@ -17,12 +18,14 @@ Reading order and scope
     - [05_numbox_dynamic_dag_demo.md](generated/05_numbox_dynamic_dag_demo.md)
 
 2) Performance — Cross-cutting patterns that support the conclusion
+  - Overview doc: 02_performance.md
 - Scope: IO formats, UDF vs native, caching, partitioning, broadcast, persistence, types.
 - Not covered: Spark↔Python boundary mechanics (see Serialization).
   - [perf_01_spark_performance_demo.md](generated/perf_01_spark_performance_demo.md)
   - [perf_02_spark_data_types_performance.md](generated/perf_02_spark_data_types_performance.md)
 
 3) Serialization — Mechanics of Spark↔pandas/NumPy boundaries
+  - Overview doc: 03_serialization.md
 - Scope: explain plans, where Python shows up, Arrow vs non-Arrow, NumPy C↔Python boundaries, best practices.
 - Not covered: framework selection or cluster-level tuning.
   - [ser_00_observe_serialization.md](generated/ser_00_observe_serialization.md)
@@ -31,6 +34,9 @@ Reading order and scope
   - [ser_03_numpy_serialization_nuances.md](generated/ser_03_numpy_serialization_nuances.md)
 
 4) UI — Observe execution to connect code to runtime
+  - Overview doc: 04_ui.md
+5) Basics — Background concepts
+  - Overview doc: 05_basics.md
 - Scope: quick jobs to populate the UI and learn to interpret stages/plans.
   - [ui_01_spark_ui_demo.md](generated/ui_01_spark_ui_demo.md)
 

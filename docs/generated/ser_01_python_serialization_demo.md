@@ -1,6 +1,6 @@
 # Serialization 01: Arrow vs traditional and UDF overhead
 
-Generated: 2025-08-10 16:55 UTC
+Generated: 2025-08-10 17:02 UTC
 
 ## Scope
 
@@ -28,21 +28,21 @@ Spark→pandas with/without Arrow; Python UDF overhead; practical guidance.
    ✅ Completed in 0.005s
 ⏱️  🚀 FAST - NumPy arrays
    ✅ Completed in 0.001s
-   📈 Speedup: 3.4x faster with NumPy
+   📈 Speedup: 3.2x faster with NumPy
 
 📈 Testing with 100,000 rows:
 ⏱️  🐌 SLOW - Python lists
-   ✅ Completed in 0.043s
+   ✅ Completed in 0.042s
 ⏱️  🚀 FAST - NumPy arrays
    ✅ Completed in 0.002s
-   📈 Speedup: 22.2x faster with NumPy
+   📈 Speedup: 20.8x faster with NumPy
 
 📈 Testing with 1,000,000 rows:
 ⏱️  🐌 SLOW - Python lists
-   ✅ Completed in 0.420s
+   ✅ Completed in 0.423s
 ⏱️  🚀 FAST - NumPy arrays
-   ✅ Completed in 0.020s
-   📈 Speedup: 20.6x faster with NumPy
+   ✅ Completed in 0.021s
+   📈 Speedup: 20.3x faster with NumPy
 
 ============================================================
 🔄 DEMO 2: SPARK TO PANDAS CONVERSION
@@ -50,26 +50,26 @@ Spark→pandas with/without Arrow; Python UDF overhead; practical guidance.
 
 📊 Testing with 50,000 rows:
 ⏱️  🐌 SLOW - Without Arrow serialization
-   ✅ Completed in 1.086s
+   ✅ Completed in 1.088s
 ⏱️  🚀 FAST - With Arrow serialization
-   ✅ Completed in 0.091s
-   📈 Speedup: 11.9x faster with Arrow
+   ✅ Completed in 0.089s
+   📈 Speedup: 12.2x faster with Arrow
    💾 Arrow reduces serialization overhead significantly!
 
 📊 Testing with 200,000 rows:
 ⏱️  🐌 SLOW - Without Arrow serialization
-   ✅ Completed in 0.148s
+   ✅ Completed in 0.133s
 ⏱️  🚀 FAST - With Arrow serialization
-   ✅ Completed in 0.129s
-   📈 Speedup: 1.1x faster with Arrow
+   ✅ Completed in 0.098s
+   📈 Speedup: 1.4x faster with Arrow
    💾 Arrow reduces serialization overhead significantly!
 
 📊 Testing with 500,000 rows:
 ⏱️  🐌 SLOW - Without Arrow serialization
-   ✅ Completed in 0.265s
+   ✅ Completed in 0.412s
 ⏱️  🚀 FAST - With Arrow serialization
-   ✅ Completed in 0.150s
-   📈 Speedup: 1.8x faster with Arrow
+   ✅ Completed in 0.206s
+   📈 Speedup: 2.0x faster with Arrow
    💾 Arrow reduces serialization overhead significantly!
 
 ============================================================
@@ -79,20 +79,20 @@ Spark→pandas with/without Arrow; Python UDF overhead; practical guidance.
 
 🐌 SLOW - Python UDF (requires serialization):
 ⏱️     Without Arrow
-   ✅ Completed in 0.263s
+   ✅ Completed in 0.330s
 ⏱️     With Arrow
-   ✅ Completed in 0.078s
+   ✅ Completed in 0.064s
 
 🚀 FAST - Native Spark functions (no serialization):
 ⏱️     Native Spark functions
-   ✅ Completed in 0.057s
+   ✅ Completed in 0.090s
 
 📈 RESULTS:
-   Python UDF (No Arrow):  0.263s
-   Python UDF (With Arrow): 0.078s
-   Native Spark:           0.057s
-   Arrow UDF Speedup:      3.4x
-   Native vs UDF Speedup:  4.6x
+   Python UDF (No Arrow):  0.330s
+   Python UDF (With Arrow): 0.064s
+   Native Spark:           0.090s
+   Arrow UDF Speedup:      5.1x
+   Native vs UDF Speedup:  3.7x
 
 ============================================================
 💾 DEMO 4: MEMORY-EFFICIENT OPERATIONS
@@ -101,16 +101,16 @@ Spark→pandas with/without Arrow; Python UDF overhead; practical guidance.
 
 🐌 SLOW - Convert entire DataFrame to pandas:
 ⏱️     Full DataFrame conversion
-   ✅ Completed in 0.153s
+   ✅ Completed in 0.204s
 
 🚀 FAST - Use Spark operations then convert result:
 ⏱️     Spark aggregation + small conversion
-   ✅ Completed in 0.383s
+   ✅ Completed in 0.400s
 
 📈 RESULTS:
-   Full conversion:     0.153s
-   Optimized approach:  0.383s
-   Speedup:            0.4x faster
+   Full conversion:     0.204s
+   Optimized approach:  0.400s
+   Speedup:            0.5x faster
    💡 Tip: Do heavy work in Spark, convert only final results!
 
 ============================================================
@@ -118,13 +118,13 @@ Spark→pandas with/without Arrow; Python UDF overhead; practical guidance.
 ============================================================
 📊 Testing complex data types with 200,000 rows:
 ⏱️  🐌 SLOW - Complex types without Arrow
-   ✅ Completed in 0.675s
+   ✅ Completed in 0.659s
 ⏱️  🚀 FAST - Complex types with Arrow
-   ✅ Completed in 0.471s
+   ✅ Completed in 0.477s
 
 📈 RESULTS:
-   Without Arrow: 0.675s
-   With Arrow:    0.471s
+   Without Arrow: 0.659s
+   With Arrow:    0.477s
    Speedup:       1.4x faster
    💡 Arrow excels with complex nested data types!
 

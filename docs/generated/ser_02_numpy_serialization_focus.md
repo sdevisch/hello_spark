@@ -1,6 +1,6 @@
 # Serialization 02: Spark→NumPy focus and total cost
 
-Generated: 2025-08-10 16:55 UTC
+Generated: 2025-08-10 17:02 UTC
 
 ## Scope
 
@@ -28,7 +28,7 @@ Spark→NumPy focus: total cost and when conversion pays off.
    - Data already distributed across Spark cluster
    - Question: Should we stay in Spark or move to NumPy/pandas?
 ⏱️  Creating Spark DataFrames
-   ✅ 2.6413s | Memory: +0.000GB
+   ✅ 2.4795s | Memory: +0.000GB
 
 ✅ Created Spark DataFrames with 500,000 rows
 💾 Data distributed across Spark cluster (cached in memory)
@@ -43,16 +43,16 @@ Spark→NumPy focus: total cost and when conversion pays off.
    - No data movement between Python driver and executors
    - Spark's Catalyst optimizer handles execution
 ⏱️  Spark basic arithmetic (x² + y²)
-   ✅ 0.0100s | Memory: +0.000GB
+   ✅ 0.0097s | Memory: +0.000GB
 ⏱️  Spark math functions (sqrt, sin, cos)
    ✅ 0.0119s | Memory: +0.000GB
 ⏱️  Spark aggregations (groupBy)
-   ✅ 0.0260s | Memory: +0.000GB
+   ✅ 0.0226s | Memory: +0.000GB
 
 🎯 SPARK OPERATIONS PERFORMANCE (NO SERIALIZATION):
-   Basic arithmetic:  0.0100s
+   Basic arithmetic:  0.0097s
    Math functions:    0.0119s
-   Aggregations:      0.0260s
+   Aggregations:      0.0226s
    💡 All operations stay in Spark JVM - no serialization overhead!
 
 ==================================================
@@ -63,28 +63,28 @@ Spark→NumPy focus: total cost and when conversion pays off.
    - Distributed data → single-machine arrays
    - But enables NumPy's optimized operations
 ⏱️  Convert Spark → NumPy (no Arrow) - EXPENSIVE
-   ✅ 0.6159s | Memory: +0.157GB
+   ✅ 0.6885s | Memory: +0.156GB
 ⏱️  Convert Spark → NumPy (with Arrow) - OPTIMIZED
-   ✅ 0.1350s | Memory: +0.051GB
+   ✅ 0.1359s | Memory: +0.051GB
 
 ⚡ NUMPY OPERATIONS AFTER CONVERSION - NO SERIALIZATION:
 ⏱️  NumPy operations (all computations)
-   ✅ 0.0155s | Memory: +0.012GB
+   ✅ 0.0169s | Memory: +0.004GB
 
 📊 CONVERSION COST COMPARISON:
-   Spark → NumPy (no Arrow):  0.6159s
-   Spark → NumPy (with Arrow): 0.1350s
-   Arrow speedup:              4.6x
+   Spark → NumPy (no Arrow):  0.6885s
+   Spark → NumPy (with Arrow): 0.1359s
+   Arrow speedup:              5.1x
 
 ⚡ COMPUTATION SPEED COMPARISON:
-   Spark operations:           0.0479s
-   NumPy operations:           0.0155s
-   NumPy speedup:              3.1x
+   Spark operations:           0.0443s
+   NumPy operations:           0.0169s
+   NumPy speedup:              2.6x
 
 🎯 TOTAL TIME ANALYSIS:
-   Stay in Spark:              0.0479s
-   Convert to NumPy + compute: 0.1505s
-   ✅ Winner: Stay in Spark (3.1x faster)
+   Stay in Spark:              0.0443s
+   Convert to NumPy + compute: 0.1527s
+   ✅ Winner: Stay in Spark (3.5x faster)
 
 ==================================================
 🎯 WHY NUMPY IS FAST AFTER CONVERSION
@@ -115,8 +115,8 @@ Spark→NumPy focus: total cost and when conversion pays off.
    • Best for intensive mathematical computations
 
 ⚖️ DECISION FRAMEWORK:
-   Spark operations:           0.0479s
-   NumPy conversion + ops:     0.1505s
+   Spark operations:           0.0443s
+   NumPy conversion + ops:     0.1527s
    ✅ For this workload: Stay in Spark
 
 💡 PRACTICAL DECISION GUIDE:
