@@ -18,11 +18,11 @@ When NumPy/Numba shine:
 Then, the details: conversion times, compute-only comparisons, and serialization hotspots.
 
 ### Files (conclusion → supporting → appendix)
-- `05_frameworks/01_frameworks_conclusion.py`
-- `05_frameworks/02_frameworks_benchmark.py`
-- `05_frameworks/03_framework_xbeta_cashflows.py`
-- `05_frameworks/04_numbox_dag_demo.py` (appendix)
-- `05_frameworks/05_numbox_dynamic_dag_demo.py` (appendix)
+- `01_frameworks/01_frameworks_conclusion.py`
+- `01_frameworks/02_frameworks_benchmark.py`
+- `01_frameworks/03_framework_xbeta_cashflows.py`
+- `01_frameworks/04_numbox_dag_demo.py` (appendix)
+- `01_frameworks/05_numbox_dynamic_dag_demo.py` (appendix)
 
 ### Generated outputs
 - `docs/generated/01_frameworks_conclusion.md`

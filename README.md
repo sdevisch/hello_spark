@@ -58,35 +58,27 @@ This repo is organized to read “last page first”: start from framework choic
    python 01_basics/01_hello_world_python.py
    ```
 
-## Repository layout (Python) — read in reverse order
+## Repository layout (Python) — conclusion first (start here)
 
-- `01_basics/`
-  - `01_hello_world_python.py` — Basic RDD, DataFrame, and SQL examples
-- `docs/`
-  - `01_basics.md` — overview
-  - `02_ui.md` — overview
-  - `03_serialization.md` — overview
-  - `04_performance.md` — overview
-  - `05_frameworks.md` — overview
-  - `index.md` — quick links to generated outputs (conclusion-first)
-  - `generated/` — auto-generated console outputs for each part
-- `02_ui/`
-  - `01_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
-- `03_serialization/`
-  - `00_observe_serialization.py` — Use explain() and the UI to spot serialization
-  - `01_python_serialization_demo.py` — Arrow vs non-Arrow; UDF impact
-  - `02_numpy_serialization_focus.py` — Start in Spark; stay vs convert
-  - `03_numpy_serialization_nuances.py` — NumPy C↔Python boundaries
-- `04_performance/`
-  - `01_spark_performance_demo.py` — I/O, UDFs, caching, partitioning, broadcast, persistence
-  - `02_spark_data_types_performance.py` — Data types: correctness, right-sizing, joins
-- `05_frameworks/` (start here)
+- `01_frameworks/` (start here)
   - `01_frameworks_conclusion.py` — Full comparison incl. Arrow analysis and decision guidance
   - `02_frameworks_benchmark.py` — End-to-end framework benchmark
   - `03_framework_xbeta_cashflows.py` — Panel data: xbeta, cashflows, rolling windows
   - Appendix: Numbox
     - `04_numbox_dag_demo.py` — Numbox DAG composition; useful in niche cases
     - `05_numbox_dynamic_dag_demo.py` — Dynamic DAG and reconfiguration demo
+- `02_performance/`
+  - `01_spark_performance_demo.py` — I/O, UDFs, caching, partitioning, broadcast, persistence
+  - `02_spark_data_types_performance.py` — Data types: correctness, right-sizing, joins
+- `03_serialization/`
+  - `00_observe_serialization.py` — Use explain() and the UI to spot serialization
+  - `01_python_serialization_demo.py` — Arrow vs non-Arrow; UDF impact
+  - `02_numpy_serialization_focus.py` — Start in Spark; stay vs convert
+  - `03_numpy_serialization_nuances.py` — NumPy C↔Python boundaries
+- `04_ui/`
+  - `01_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
+- `05_basics/`
+  - `01_hello_world_python.py` — Basic RDD, DataFrame, and SQL examples
 
 ## Recommended run sequence (Python) — last page first
 
