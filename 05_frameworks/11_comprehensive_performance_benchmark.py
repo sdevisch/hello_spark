@@ -543,7 +543,7 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/05_frameworks_benchmark_output.md",
+            markdown_path="docs/generated/11_comprehensive_performance_benchmark.md",
             title="Frameworks: Comprehensive performance benchmark",
             main_callable=main,
         )

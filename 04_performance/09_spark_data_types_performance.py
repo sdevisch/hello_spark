@@ -629,7 +629,7 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/04_data_types_performance_output.md",
+            markdown_path="docs/generated/09_spark_data_types_performance.md",
             title="Performance: Data types and efficiency",
             main_callable=main,
         )

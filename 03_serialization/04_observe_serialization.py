@@ -360,7 +360,7 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/03_serialization_observe_output.md",
+            markdown_path="docs/generated/04_observe_serialization.md",
             title="Serialization: Using explain() and diagnostics",
             main_callable=main,
         )

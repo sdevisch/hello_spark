@@ -110,7 +110,7 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/01_basics_output.md",
+            markdown_path="docs/generated/01_hello_world_python.md",
             title="Basics: Spark Hello World (PySpark)",
             main_callable=main,
         )

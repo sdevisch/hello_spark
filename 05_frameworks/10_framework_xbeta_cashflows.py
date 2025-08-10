@@ -392,7 +392,7 @@ if __name__ == "__main__":
         from utils.docgen import run_and_save_markdown
 
         run_and_save_markdown(
-            markdown_path="docs/generated/05_frameworks_xbeta_cashflows_output.md",
+            markdown_path="docs/generated/10_framework_xbeta_cashflows.md",
             title="Frameworks: Panel xbeta & cashflows comparison",
             main_callable=main,
         )
