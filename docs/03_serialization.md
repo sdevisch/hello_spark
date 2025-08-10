@@ -11,6 +11,7 @@ This part contains four scripts that show where serialization happens and how to
 - `03_serialization/07_numpy_serialization_nuances.py`
 
 ### Generated outputs
+- `docs/generated/ser_00_observe_serialization.md`
 - `docs/generated/ser_01_python_serialization_demo.md`
 - `docs/generated/ser_02_numpy_serialization_focus.md`
 - `docs/generated/ser_03_numpy_serialization_nuances.md`

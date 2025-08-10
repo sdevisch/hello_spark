@@ -1,6 +1,6 @@
 # Serialization 01: Arrow vs traditional and UDF overhead
 
-Generated: 2025-08-10 16:22 UTC
+Generated: 2025-08-10 16:29 UTC
 
 ## Console output
 
@@ -23,21 +23,21 @@ Generated: 2025-08-10 16:22 UTC
    ✅ Completed in 0.005s
 ⏱️  🚀 FAST - NumPy arrays
    ✅ Completed in 0.001s
-   📈 Speedup: 8.4x faster with NumPy
+   📈 Speedup: 8.2x faster with NumPy
 
 📈 Testing with 100,000 rows:
 ⏱️  🐌 SLOW - Python lists
-   ✅ Completed in 0.100s
+   ✅ Completed in 0.042s
 ⏱️  🚀 FAST - NumPy arrays
-   ✅ Completed in 0.003s
-   📈 Speedup: 34.0x faster with NumPy
+   ✅ Completed in 0.002s
+   📈 Speedup: 19.3x faster with NumPy
 
 📈 Testing with 1,000,000 rows:
 ⏱️  🐌 SLOW - Python lists
-   ✅ Completed in 0.420s
+   ✅ Completed in 0.410s
 ⏱️  🚀 FAST - NumPy arrays
    ✅ Completed in 0.021s
-   📈 Speedup: 19.7x faster with NumPy
+   📈 Speedup: 19.6x faster with NumPy
 
 ============================================================
 🔄 DEMO 2: SPARK TO PANDAS CONVERSION
@@ -45,26 +45,26 @@ Generated: 2025-08-10 16:22 UTC
 
 📊 Testing with 50,000 rows:
 ⏱️  🐌 SLOW - Without Arrow serialization
-   ✅ Completed in 1.030s
+   ✅ Completed in 1.023s
 ⏱️  🚀 FAST - With Arrow serialization
    ✅ Completed in 0.095s
-   📈 Speedup: 10.9x faster with Arrow
+   📈 Speedup: 10.8x faster with Arrow
    💾 Arrow reduces serialization overhead significantly!
 
 📊 Testing with 200,000 rows:
 ⏱️  🐌 SLOW - Without Arrow serialization
-   ✅ Completed in 0.133s
+   ✅ Completed in 0.104s
 ⏱️  🚀 FAST - With Arrow serialization
-   ✅ Completed in 0.137s
-   📈 Speedup: 1.0x faster with Arrow
+   ✅ Completed in 0.135s
+   📈 Speedup: 0.8x faster with Arrow
    💾 Arrow reduces serialization overhead significantly!
 
 📊 Testing with 500,000 rows:
 ⏱️  🐌 SLOW - Without Arrow serialization
-   ✅ Completed in 0.264s
+   ✅ Completed in 0.223s
 ⏱️  🚀 FAST - With Arrow serialization
-   ✅ Completed in 0.251s
-   📈 Speedup: 1.1x faster with Arrow
+   ✅ Completed in 0.169s
+   📈 Speedup: 1.3x faster with Arrow
    💾 Arrow reduces serialization overhead significantly!
 
 ============================================================
@@ -74,20 +74,20 @@ Generated: 2025-08-10 16:22 UTC
 
 🐌 SLOW - Python UDF (requires serialization):
 ⏱️     Without Arrow
-   ✅ Completed in 0.274s
+   ✅ Completed in 0.286s
 ⏱️     With Arrow
-   ✅ Completed in 0.065s
+   ✅ Completed in 0.055s
 
 🚀 FAST - Native Spark functions (no serialization):
 ⏱️     Native Spark functions
-   ✅ Completed in 0.078s
+   ✅ Completed in 0.087s
 
 📈 RESULTS:
-   Python UDF (No Arrow):  0.274s
-   Python UDF (With Arrow): 0.065s
-   Native Spark:           0.078s
-   Arrow UDF Speedup:      4.2x
-   Native vs UDF Speedup:  3.5x
+   Python UDF (No Arrow):  0.286s
+   Python UDF (With Arrow): 0.055s
+   Native Spark:           0.087s
+   Arrow UDF Speedup:      5.2x
+   Native vs UDF Speedup:  3.3x
 
 ============================================================
 💾 DEMO 4: MEMORY-EFFICIENT OPERATIONS
@@ -96,15 +96,15 @@ Generated: 2025-08-10 16:22 UTC
 
 🐌 SLOW - Convert entire DataFrame to pandas:
 ⏱️     Full DataFrame conversion
-   ✅ Completed in 0.136s
+   ✅ Completed in 0.130s
 
 🚀 FAST - Use Spark operations then convert result:
 ⏱️     Spark aggregation + small conversion
-   ✅ Completed in 0.378s
+   ✅ Completed in 0.357s
 
 📈 RESULTS:
-   Full conversion:     0.136s
-   Optimized approach:  0.378s
+   Full conversion:     0.130s
+   Optimized approach:  0.357s
    Speedup:            0.4x faster
    💡 Tip: Do heavy work in Spark, convert only final results!
 
@@ -113,14 +113,14 @@ Generated: 2025-08-10 16:22 UTC
 ============================================================
 📊 Testing complex data types with 200,000 rows:
 ⏱️  🐌 SLOW - Complex types without Arrow
-   ✅ Completed in 0.672s
+   ✅ Completed in 0.647s
 ⏱️  🚀 FAST - Complex types with Arrow
-   ✅ Completed in 0.550s
+   ✅ Completed in 0.502s
 
 📈 RESULTS:
-   Without Arrow: 0.672s
-   With Arrow:    0.550s
-   Speedup:       1.2x faster
+   Without Arrow: 0.647s
+   With Arrow:    0.502s
+   Speedup:       1.3x faster
    💡 Arrow excels with complex nested data types!
 
 ============================================================

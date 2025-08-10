@@ -1,6 +1,6 @@
 # UI: Spark UI demo (jobs and exploration)
 
-Generated: 2025-08-10 16:22 UTC
+Generated: 2025-08-10 16:29 UTC
 
 ## Console output
 
@@ -9,7 +9,7 @@ Generated: 2025-08-10 16:22 UTC
 ============================================================
 🎉 Spark Session Started Successfully!
 🌐 Spark UI: http://localhost:4040
-🆔 Application ID: local-1754842944798
+🆔 Application ID: local-1754843357593
 📊 Spark Version: 3.5.0
 ============================================================
 📊 Creating sample jobs for UI demonstration...

@@ -58,22 +58,22 @@ This repo is organized to read “last page first”: start from framework choic
   - `05_frameworks.md` — overview
   - `generated/` — auto-generated console outputs for each part
 - `02_ui/`
-  - `03_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
+  - `01_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
 - `03_serialization/`
-  - `04_observe_serialization.py` — Use explain() and the UI to spot serialization
-  - `05_python_serialization_demo.py` — Arrow vs non-Arrow; UDF impact
-  - `06_numpy_serialization_focus_clean.py` — Start in Spark; stay vs convert
-  - `07_numpy_serialization_nuances.py` — NumPy C↔Python boundaries
+  - `00_observe_serialization.py` — Use explain() and the UI to spot serialization
+  - `01_python_serialization_demo.py` — Arrow vs non-Arrow; UDF impact
+  - `02_numpy_serialization_focus.py` — Start in Spark; stay vs convert
+  - `03_numpy_serialization_nuances.py` — NumPy C↔Python boundaries
 - `04_performance/`
-  - `08_spark_performance_demo.py` — I/O, UDFs, caching, partitioning, broadcast, persistence
-  - `09_spark_data_types_performance.py` — Data types: correctness, right-sizing, joins
+  - `01_spark_performance_demo.py` — I/O, UDFs, caching, partitioning, broadcast, persistence
+  - `02_spark_data_types_performance.py` — Data types: correctness, right-sizing, joins
 - `05_frameworks/` (start here)
-  - `12_comprehensive_framework_comparison.py` — Full comparison incl. Arrow analysis and decision guidance
-  - `11_comprehensive_performance_benchmark.py` — End-to-end framework benchmark
-  - `10_framework_xbeta_cashflows.py` — Panel data: xbeta, cashflows, rolling windows
+  - `01_frameworks_conclusion.py` — Full comparison incl. Arrow analysis and decision guidance
+  - `02_frameworks_benchmark.py` — End-to-end framework benchmark
+  - `03_framework_xbeta_cashflows.py` — Panel data: xbeta, cashflows, rolling windows
   - Appendix: Numbox
-    - `13_numbox_dag_demo.py` — Numbox DAG composition; useful in niche cases
-    - `14_numbox_dynamic_dag_demo.py` — Dynamic DAG and reconfiguration demo
+    - `04_numbox_dag_demo.py` — Numbox DAG composition; useful in niche cases
+    - `05_numbox_dynamic_dag_demo.py` — Dynamic DAG and reconfiguration demo
 
 ## Recommended run sequence (Python) — last page first
 
@@ -85,36 +85,36 @@ This repo is organized to read “last page first”: start from framework choic
    ```
 2. Spark UI
    - Read: `docs/02_ui.md`
-   - Output: `docs/generated/02_ui_output.md`
+   - Output: `docs/generated/ui_01_spark_ui_demo.md`
    ```bash
-   python 02_ui/03_spark_ui_demo.py
+   python 02_ui/01_spark_ui_demo.py
    ```
 3. Serialization fundamentals
    - Read: `docs/03_serialization.md`
-   - Outputs: `docs/generated/03_serialization_*_output.md`
+   - Outputs: `docs/generated/ser_*_*.md`
    ```bash
-   python 03_serialization/04_observe_serialization.py
-   python 03_serialization/05_python_serialization_demo.py
-   python 03_serialization/06_numpy_serialization_focus_clean.py
-   python 03_serialization/07_numpy_serialization_nuances.py
+   python 03_serialization/00_observe_serialization.py
+   python 03_serialization/01_python_serialization_demo.py
+   python 03_serialization/02_numpy_serialization_focus.py
+   python 03_serialization/03_numpy_serialization_nuances.py
    ```
 4. Performance patterns
    - Read: `docs/04_performance.md`
-   - Outputs: `docs/generated/04_*_output.md`
+   - Outputs: `docs/generated/perf_*_*.md`
    ```bash
-   python 04_performance/08_spark_performance_demo.py
-   python 04_performance/09_spark_data_types_performance.py
+   python 04_performance/01_spark_performance_demo.py
+   python 04_performance/02_spark_data_types_performance.py
    ```
 5. Framework comparisons (start here)
    - Read: `docs/05_frameworks.md`
-   - Outputs: `docs/generated/05_frameworks_*_output.md`
+   - Outputs: `docs/generated/0*_*.md`
    ```bash
-   python 05_frameworks/12_comprehensive_framework_comparison.py
-   python 05_frameworks/11_comprehensive_performance_benchmark.py
-   python 05_frameworks/10_framework_xbeta_cashflows.py
+   python 05_frameworks/01_frameworks_conclusion.py
+   python 05_frameworks/02_frameworks_benchmark.py
+   python 05_frameworks/03_framework_xbeta_cashflows.py
    # Appendix (optional)
-   python 05_frameworks/13_numbox_dag_demo.py
-   python 05_frameworks/14_numbox_dynamic_dag_demo.py
+   python 05_frameworks/04_numbox_dag_demo.py
+   python 05_frameworks/05_numbox_dynamic_dag_demo.py
    ```
 
 Notes:
