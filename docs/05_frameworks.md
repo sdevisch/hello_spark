@@ -1,6 +1,11 @@
-## Frameworks: Spark, Pandas, NumPy, and Numba
+## Frameworks: Start with the conclusion
 
-This part compares frameworks on realistic workloads and synthetic benchmarks.
+Main guidance:
+
+- In a Spark context, prefer Arrow and pandas for the majority of tasks. Use Spark native functions when you stay in Spark; when converting to single-machine, use Arrow to pandas and keep operations vectorized in pandas.
+- For specialized kernels or tight loops that pandas cannot express efficiently, switch to NumPy or Numba (jitted NumPy) as isolated steps. The scripts here show those niche cases.
+
+Then, the details: conversion times, compute-only comparisons, and serialization hotspots.
 
 ### Files
 - `05_frameworks/10_framework_xbeta_cashflows.py`
@@ -23,13 +28,12 @@ This part compares frameworks on realistic workloads and synthetic benchmarks.
 - Numbox DAG demo: building a DAG of typed JIT kernels using Numbox `Node`, `Work`, and `Proxy` to structure complex pipelines and compare against NumPy/Numba
 - Numbox Dynamic DAG demo: runtime reconfiguration of feature graph (varying transforms and degrees per micro-batch), showcasing Proxy caching and Node type-erased dependencies
 
-### Typical performance hierarchy (may vary)
-1. Jitted NumPy (Numba)
-2. NumPy (vectorized)
-3. Pandas (vectorized)
-4. Spark (distributed; scales far beyond memory)
+### Typical performance hierarchy (may vary by workload)
+- Jitted NumPy (Numba) and NumPy are fastest for pure numerical array kernels when data fits in memory
+- Pandas is generally fast and productive for mixed data types and tabular ops on a single machine
+- Spark is the right choice when you need scale-out, fault tolerance, or big data integrations
   
-Additionally, when modularizing pipelines into a DAG, Numbox can provide structure and JIT reuse. See `https://github.com/Goykhman/numbox`.
+Appendix: When modularizing pipelines into a DAG, Numbox can provide structure and JIT reuse in niche scenarios. See `https://github.com/Goykhman/numbox`.
 
 ### Key takeaways
 - Choose the right tool for the job based on data size and workload

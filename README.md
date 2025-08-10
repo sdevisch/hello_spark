@@ -1,10 +1,16 @@
-# Hello Spark: A practical guide with runnable examples and summaries
+# Hello Spark: Start with the conclusion, then dive deep
 
 This repository is an end-to-end learning path for Apache Spark and related Python tooling. Each part has:
 - A runnable script that demonstrates the concepts
 - A concise markdown overview in `docs/` so you can learn without running code
 
-Start with the overview docs, then optionally run the scripts.
+Main conclusion first:
+
+- In a Spark context, prefer using Arrow and the simplest, most well-known syntax: pandas (pandas-on-Spark for API parity; pandas DataFrame after Arrow conversion when moving off Spark). It gives the best balance of performance, ergonomics, and ecosystem integration for most cases.
+- For very specific hot paths that are not easily vectorized with pandas, use specialized frameworks like NumPy and jitted NumPy (Numba). Those cases are isolated and illustrated as separate .py examples.
+- Then go into details: when and where pandas/NumPy serialize, what to avoid, and Spark-specific tips.
+
+This repo is organized to read “last page first”: start from framework choices and Arrow impact, then work backwards to serialization fundamentals, UI, and basics.
 
 ## Prerequisites
 
@@ -40,7 +46,7 @@ Start with the overview docs, then optionally run the scripts.
    python 01_basics/01_hello_world_python.py
    ```
 
-## Repository layout (Python)
+## Repository layout (Python) — read in reverse order
 
 - `01_basics/`
   - `01_hello_world_python.py` — Basic RDD, DataFrame, and SQL examples
@@ -61,12 +67,15 @@ Start with the overview docs, then optionally run the scripts.
 - `04_performance/`
   - `08_spark_performance_demo.py` — I/O, UDFs, caching, partitioning, broadcast, persistence
   - `09_spark_data_types_performance.py` — Data types: correctness, right-sizing, joins
-- `05_frameworks/`
-  - `10_framework_xbeta_cashflows.py` — Panel data: xbeta, cashflows, rolling windows
+- `05_frameworks/` (start here)
+  - `12_comprehensive_framework_comparison.py` — Full comparison incl. Arrow analysis and decision guidance
   - `11_comprehensive_performance_benchmark.py` — End-to-end framework benchmark
-  - `12_comprehensive_framework_comparison.py` — Full comparison incl. Arrow analysis
+  - `10_framework_xbeta_cashflows.py` — Panel data: xbeta, cashflows, rolling windows
+  - Appendix: Numbox
+    - `13_numbox_dag_demo.py` — Numbox DAG composition; useful in niche cases
+    - `14_numbox_dynamic_dag_demo.py` — Dynamic DAG and reconfiguration demo
 
-## Recommended run sequence (Python)
+## Recommended run sequence (Python) — last page first
 
 1. Basics
    - Read: `docs/01_basics.md`
@@ -96,13 +105,16 @@ Start with the overview docs, then optionally run the scripts.
    python 04_performance/08_spark_performance_demo.py
    python 04_performance/09_spark_data_types_performance.py
    ```
-5. Framework comparisons
+5. Framework comparisons (start here)
    - Read: `docs/05_frameworks.md`
    - Outputs: `docs/generated/05_frameworks_*_output.md`
    ```bash
-   python 05_frameworks/10_framework_xbeta_cashflows.py
-   python 05_frameworks/11_comprehensive_performance_benchmark.py
    python 05_frameworks/12_comprehensive_framework_comparison.py
+   python 05_frameworks/11_comprehensive_performance_benchmark.py
+   python 05_frameworks/10_framework_xbeta_cashflows.py
+   # Appendix (optional)
+   python 05_frameworks/13_numbox_dag_demo.py
+   python 05_frameworks/14_numbox_dynamic_dag_demo.py
    ```
 
 Notes:

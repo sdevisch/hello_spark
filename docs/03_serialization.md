@@ -1,5 +1,7 @@
 ## Serialization: Explain plans, Arrow, and NumPy boundaries
 
+Read this after the framework conclusions. The goal here is to explain when pandas/NumPy serialize, why Arrow matters, and how to avoid hidden Python crossings.
+
 This part contains four scripts that show where serialization happens and how to minimize it.
 
 ### Files
@@ -20,9 +22,9 @@ This part contains four scripts that show where serialization happens and how to
 - When to stay in Spark vs convert to NumPy/pandas
 - NumPy operations that stay in C vs those that cross into Python
 
-### Key takeaways
+### Key takeaways (recap)
 - Prefer native Spark functions over Python UDFs
-- Enable Arrow for faster Spark↔pandas conversions
+- Enable Arrow for faster Spark↔pandas conversions; use Arrow when moving to pandas
 - Stay within one framework as long as possible
 - Avoid `.tolist()` and frequent scalar extraction in tight loops
 
