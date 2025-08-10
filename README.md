@@ -33,65 +33,60 @@ This repository contains Hello World examples for Apache Spark in both Python (P
 
 3. **Run the first Python example**:
    ```bash
-   python 01_hello_world_python.py
+   python 01_basics/01_hello_world_python.py
    ```
+
+## Repository layout (Python)
+
+- `01_basics/`
+  - `01_hello_world_python.py` — Basic RDD, DataFrame, and SQL examples
+- `02_ui/`
+  - `03_spark_ui_demo.py` — Sample jobs and an always-on Spark UI
+- `03_serialization/`
+  - `04_observe_serialization.py` — Use explain() and the UI to spot serialization
+  - `05_python_serialization_demo.py` — Arrow vs non-Arrow; UDF impact
+  - `06_numpy_serialization_focus_clean.py` — Start in Spark; stay vs convert
+  - `07_numpy_serialization_nuances.py` — NumPy C↔Python boundaries
+- `04_performance/`
+  - `08_spark_performance_demo.py` — I/O, UDFs, caching, partitioning, broadcast, persistence
+  - `09_spark_data_types_performance.py` — Data types: correctness, right-sizing, joins
+- `05_frameworks/`
+  - `10_framework_xbeta_cashflows.py` — Panel data: xbeta, cashflows, rolling windows
+  - `11_comprehensive_performance_benchmark.py` — End-to-end framework benchmark
+  - `12_comprehensive_framework_comparison.py` — Full comparison incl. Arrow analysis
 
 ## Recommended run sequence (Python)
 
-Follow this order for a logical progression from basics to advanced topics:
-
-1. 01_hello_world_python.py — Basic RDD, DataFrame, and SQL examples
+1. Basics
    ```bash
-   python 01_hello_world_python.py
+   python 01_basics/01_hello_world_python.py
    ```
-2. 02_hello_world_with_ui.py — Same basics, keeps session alive to explore Spark UI
+2. Spark UI
    ```bash
-   python 02_hello_world_with_ui.py
+   python 02_ui/03_spark_ui_demo.py
    ```
-3. 03_spark_ui_demo.py — Creates sample jobs and keeps Spark UI running indefinitely
+3. Serialization fundamentals
    ```bash
-   python 03_spark_ui_demo.py
+   python 03_serialization/04_observe_serialization.py
+   python 03_serialization/05_python_serialization_demo.py
+   python 03_serialization/06_numpy_serialization_focus_clean.py
+   python 03_serialization/07_numpy_serialization_nuances.py
    ```
-4. 04_observe_serialization.py — Use explain() and Spark UI to spot serialization points
+4. Performance patterns
    ```bash
-   python 04_observe_serialization.py
+   python 04_performance/08_spark_performance_demo.py
+   python 04_performance/09_spark_data_types_performance.py
    ```
-5. 05_python_serialization_demo.py — Arrow vs non-Arrow conversions; UDF overhead
+5. Framework comparisons
    ```bash
-   python 05_python_serialization_demo.py
+   python 05_frameworks/10_framework_xbeta_cashflows.py
+   python 05_frameworks/11_comprehensive_performance_benchmark.py
+   python 05_frameworks/12_comprehensive_framework_comparison.py
    ```
-6. 06_numpy_serialization_focus_clean.py — When data starts in Spark; convert vs stay
-   ```bash
-   python 06_numpy_serialization_focus_clean.py
-   ```
-7. 07_numpy_serialization_nuances.py — Fine-grained NumPy C↔Python boundary behavior
-   ```bash
-   python 07_numpy_serialization_nuances.py
-   ```
-8. 08_spark_performance_demo.py — I/O, UDFs, caching, partitioning, broadcast joins, persistence
-   ```bash
-   python 08_spark_performance_demo.py
-   ```
-9. 09_spark_data_types_performance.py — Data type choices: correctness, right-sizing, and joins
-   ```bash
-   python 09_spark_data_types_performance.py
-   ```
-10. 10_framework_xbeta_cashflows.py — Realistic panel data: xbeta, cashflows, rolling windows
-    ```bash
-    python 10_framework_xbeta_cashflows.py
-    ```
-11. 11_comprehensive_performance_benchmark.py — End-to-end benchmark across frameworks
-    ```bash
-    python 11_comprehensive_performance_benchmark.py
-    ```
-12. 12_comprehensive_framework_comparison.py — Full comparison incl. Arrow analysis and summaries
-    ```bash
-    python 12_comprehensive_framework_comparison.py
-    ```
 
 Notes:
 - Some scripts size datasets based on available RAM and may take several minutes.
-- Arrow optimizations require `pyarrow` installed (included in `requirements.txt`).
+- Arrow optimizations require `pyarrow` (included in `requirements.txt`).
 
 ### Scala Setup
 
