@@ -244,6 +244,13 @@ def main():
     print(f"   Step 3 (stream):     {t_stream:.3f}s")
     print(f"   Step 4 (approx σ):   {t_stream_approx:.3f}s")
 
+    print("\n📌 Guidance on streaming (mapInPandas):")
+    print("   • Streaming keeps work distributed and avoids collecting to the driver.")
+    print("   • In small local runs, overhead (repartition, Arrow batches, per-partition pandas frames, per-executor JIT warmup)")
+    print("     can outweigh compute, so it may appear slower in this benchmark.")
+    print("   • Enable it when: per-entity series are long, horizon is large, driver memory is tight, or end-to-end distribution is required.")
+    print("   • If used, cache the repartitioned data, warm JIT once per executor, right-size partitions (≈2–3× cores), and limit OMP/MKL threads.")
+
     spark.stop()
 
 
