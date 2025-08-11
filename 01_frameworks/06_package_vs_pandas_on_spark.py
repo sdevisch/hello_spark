@@ -41,7 +41,7 @@ import pyspark.sql.functions as F
 from pyspark.sql.functions import col
 
 
-def build_spark_data(spark: SparkSession, rows: int, entities: int):
+def build_spark_data(spark: SparkSession, rows: int, entities: int, wide_cols: int = 0):
     from pyspark.sql.window import Window
 
     # Create panel: entity_id × t with synthetic inputs
@@ -54,9 +54,15 @@ def build_spark_data(spark: SparkSession, rows: int, entities: int):
         (F.rand() * 5).cast("int").alias("cat"),
     )
 
+    # Add wide columns to simulate hundreds of features (not used by model here
+    # but they materially impact conversion and ps dataframe width)
+    if wide_cols > 0:
+        for i in range(wide_cols):
+            base = base.withColumn(f"w_{i}", F.rand())
+
     # Optional: ensure per-entity ordering
     w = Window.partitionBy("entity_id").orderBy(col("t").asc())
-    df = base.select("entity_id", "t", "values", "prices", "flag", "cat")
+    df = base.select("entity_id", "t", "values", "prices", "flag", "cat", *[f"w_{i}" for i in range(wide_cols)])
     return df.cache()
 
 
@@ -129,19 +135,55 @@ def run_pandas_on_spark(spark: SparkSession, df, horizon: int):
     return {"transform": t_tf, "forecast": t_fc}
 
 
+def _estimate_bytes(rows: int, cols: int, dtype_bytes: int = 8) -> float:
+    return float(rows) * float(cols) * float(dtype_bytes)
+
+
+def run_scenario(spark: SparkSession, name: str, rows: int, entities: int, horizon: int, wide_cols: int, mem_gb: float):
+    print("\n" + "=" * 80)
+    print(f"🧪 Scenario: {name}")
+    print("-" * 80)
+    print(f"rows={rows:,}, entities={entities:,}, horizon={horizon}, wide_cols={wide_cols}")
+    cols_for_est = 6 + wide_cols  # entity_id,t,values,prices,flag,cat + wide
+    est_bytes = _estimate_bytes(rows, cols_for_est, 8)
+    print(f"~Estimated raw size (double-eqv): {est_bytes/1e9:.2f} GB")
+
+    df = build_spark_data(spark, rows=rows, entities=entities, wide_cols=wide_cols)
+    cnt = df.count(); print(f"   Built panel rows: {cnt:,}")
+
+    # Run package path only if reasonably safe
+    pkg = None
+    safety_factor = 0.5  # allow up to 50% of RAM for DataFrame conversion
+    if (est_bytes / (1024**3)) < mem_gb * safety_factor:
+        pkg = run_package_path(spark, df, horizon=horizon)
+    else:
+        print("   ⚠️ Skipping package path: dataset too large to safely collect to driver")
+
+    ps = run_pandas_on_spark(spark, df, horizon=horizon)
+
+    # Summary
+    print("\n📊 Scenario summary:")
+    if pkg:
+        total_pkg = pkg["convert"] + pkg["transform"] + pkg["forecast"]
+        print(f"   Package path total: {total_pkg:.3f}s  (convert={pkg['convert']:.3f}s, tf={pkg['transform']:.3f}s, fc={pkg['forecast']:.3f}s, numba={pkg['numba']})")
+    else:
+        print("   Package path total: n/a (skipped)")
+    if ps:
+        total_ps = ps["transform"] + ps["forecast"]
+        print(f"   pandas-on-Spark total: {total_ps:.3f}s (tf={ps['transform']:.3f}s, fc={ps['forecast']:.3f}s)")
+    else:
+        print("   pandas-on-Spark total: n/a (ps unavailable)")
+
+    print("\n🧭 Guidance:")
+    print("   • Package path excels when compute is heavy (large horizon) and data fits in memory.")
+    print("   • pandas-on-Spark wins when width/rows are large and loops are short or vectorizable.")
+
+
 def main():
     print("🚀 Package vs pandas-on-Spark experiment")
     print("📚 Docs index: docs/index.md")
     mem = get_total_memory_gb()
     print(f"💻 System memory: {mem:.1f} GB")
-
-    # Size knobs
-    if mem < 8:
-        rows, entities, horizon = 300_000, 500, 24
-    elif mem < 16:
-        rows, entities, horizon = 600_000, 1_000, 36
-    else:
-        rows, entities, horizon = 1_000_000, 2_000, 48
 
     spark = (
         SparkSession.builder.appName("Package-vs-PandasOnSpark")
@@ -151,30 +193,16 @@ def main():
     )
     spark.sparkContext.setLogLevel("WARN")
 
-    # Build data
-    df = build_spark_data(spark, rows=rows, entities=entities)
-    cnt = df.count(); print(f"   Built panel rows: {cnt:,}")
+    # Scenarios matrix (demonstrates pros/cons)
+    scenarios = [
+        ("Small, in-memory compute-heavy (Numba sweet spot)", 300_000, 500, 48, 0),
+        ("Medium, some width (balanced)", 800_000, 1_000, 36, 50),
+        ("Wide (hundreds cols), moderate horizon", 800_000, 1_000, 24, 200),
+        ("Large rows (driver-safety block), horizon small", 3_000_000, 2_000, 12, 50),
+    ]
 
-    # Run paths
-    pkg = run_package_path(spark, df, horizon=horizon)
-    ps = run_pandas_on_spark(spark, df, horizon=horizon)
-
-    print("\n🏁 Summary (lower is better):")
-    if pkg:
-        total_pkg = pkg["convert"] + pkg["transform"] + pkg["forecast"]
-        print(f"   Package path total: {total_pkg:.3f}s  (convert={pkg['convert']:.3f}s, tf={pkg['transform']:.3f}s, fc={pkg['forecast']:.3f}s, numba={pkg['numba']})")
-    if ps:
-        total_ps = ps["transform"] + ps["forecast"]
-        print(f"   pandas-on-Spark total: {total_ps:.3f}s (tf={ps['transform']:.3f}s, fc={ps['forecast']:.3f}s)")
-
-    print("\n📌 When package+Numba is better:")
-    print("   • Compute-heavy transforms and iterative loops per entity")
-    print("   • Horizon is large (dozens), tight recurrence relations")
-    print("   • Data fits on driver; conversion cost amortized")
-    print("\n📌 When pandas-on-Spark is better:")
-    print("   • Data larger-than-memory; need distributed execution")
-    print("   • Group/window operations without tight per-row recurrences")
-    print("   • You want to avoid driver collection and package distribution")
+    for name, rows, entities, horizon, wide_cols in scenarios:
+        run_scenario(spark, name, rows, entities, horizon, wide_cols, mem)
 
     spark.stop()
 
