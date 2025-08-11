@@ -68,11 +68,17 @@ def build_spark_data(spark: SparkSession, rows: int, entities: int, wide_cols: i
 
 def run_package_path(spark: SparkSession, df, horizon: int):
     def to_pandas():
-        return df.toPandas()
+        # Only convert columns used by the model to reduce width
+        slim = df.select("entity_id", "values", "prices", "flag", "cat")
+        return slim.toPandas()
 
     print("\n== Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==")
     t0 = time.time()
-    pdf = to_pandas()
+    try:
+        pdf = to_pandas()
+    except Exception as e:
+        print(f"   ⚠️ Spark→pandas conversion failed (skipping package path): {str(e)[:120]}...")
+        return None
     t_conv = time.time() - t0
 
     # Prepare arrays
@@ -107,7 +113,12 @@ def run_pandas_on_spark(spark: SparkSession, df, horizon: int):
         return None
 
     # Create ps.DataFrame from Spark df
-    psdf = ps.DataFrame(df)
+    try:
+        # Only keep columns actually used for the computation to avoid overhead from wide extras
+        psdf = ps.DataFrame(df.select("entity_id", "t", "values", "prices", "flag", "cat"))
+    except Exception as e:
+        print(f"   ⚠️ pandas-on-Spark conversion failed: {str(e)[:120]}...")
+        return None
 
     # Vectorizable part as column expressions (avoid tight Python loops)
     t0 = time.time()
@@ -188,7 +199,10 @@ def main():
     spark = (
         SparkSession.builder.appName("Package-vs-PandasOnSpark")
         .master("local[*]")
+        .config("spark.driver.memory", "4g")
+        .config("spark.sql.shuffle.partitions", "8")
         .config("spark.sql.execution.arrow.pyspark.enabled", "true")
+        .config("spark.sql.execution.arrow.maxRecordsPerBatch", "2000")
         .getOrCreate()
     )
     spark.sparkContext.setLogLevel("WARN")
@@ -196,9 +210,9 @@ def main():
     # Scenarios matrix (demonstrates pros/cons)
     scenarios = [
         ("Small, in-memory compute-heavy (Numba sweet spot)", 300_000, 500, 48, 0),
-        ("Medium, some width (balanced)", 800_000, 1_000, 36, 50),
-        ("Wide (hundreds cols), moderate horizon", 800_000, 1_000, 24, 200),
-        ("Large rows (driver-safety block), horizon small", 3_000_000, 2_000, 12, 50),
+        ("Medium, some width (balanced)", 600_000, 1_000, 36, 50),
+        ("Wide (hundreds cols), moderate horizon", 400_000, 1_000, 24, 200),
+        ("Large rows (driver-safety block), horizon small", 2_000_000, 2_000, 12, 50),
     ]
 
     for name, rows, entities, horizon, wide_cols in scenarios:
