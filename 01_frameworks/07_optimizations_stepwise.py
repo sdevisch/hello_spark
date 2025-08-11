@@ -134,9 +134,12 @@ def main():
         .config("spark.sql.shuffle.partitions", "8")
         .config("spark.sql.execution.arrow.pyspark.enabled", "true")
         .config("spark.sql.execution.arrow.maxRecordsPerBatch", "2000")
+        .config("spark.ui.showConsoleProgress", "false")
+        .config("spark.sql.debug.maxToStringFields", "2000")
         .getOrCreate()
     )
-    spark.sparkContext.setLogLevel("WARN")
+    # Reduce noisy WARNs in local runs
+    spark.sparkContext.setLogLevel("ERROR")
 
     # Dataset knobs
     rows, entities, horizon, wide = 600_000, 1_000, 36, 100
