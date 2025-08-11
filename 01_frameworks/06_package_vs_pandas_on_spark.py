@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 """
-Frameworks: External package (Numba/NumPy) vs pandas-on-Spark for model scoring
-================================================================================
+Frameworks: Baseline model scoring (Arrow→pandas+NumPy/Numba vs Spark)
+========================================================================
 
 Experiment: score a model that requires complex feature transforms and
 multi-step iterative forecasts per entity over dozens of periods.
 
-Compare two approaches:
-1) External package implemented with NumPy/Numba (see utils/modelpkg.py),
-   run on single machine after Spark→pandas (Arrow); treat Spark as ETL.
-2) pandas-on-Spark (ps) implementation to keep work inside Spark executor
-   plan while using pandas-like API.
+This baseline sets up a representative scoring workload and compares:
+1) Arrow → pandas → NumPy/Numba (external package in `utils/modelpkg.py`).
+   Spark acts as ETL; kernels run compiled on a single machine.
+2) Spark SQL expression path (pandas-like logic using native Spark functions),
+   to keep the work distributed without Python crossings.
+3) Distributed NumPy without Arrow via mapPartitions (executor-side NumPy),
+   illustrating the cost when avoiding Arrow.
 
-Outcome guidance:
-- Small to medium data, heavy numeric kernels, iterative loops: package+Numba
-  wins after Arrow conversion. Best when data fits in driver memory and
-  kernels are compute-bound.
-- Larger-than-memory or cluster-scaling need, group/window-heavy ops without
-  tight per-row loops: pandas-on-Spark (or native Spark) is better. Avoid
-  Python crossings and shipping big data to driver.
+Outcome guidance (baseline):
+- For compute-heavy, iterative kernels, the Arrow→pandas→NumPy/Numba path
+  tends to win when the working set fits memory or can be processed safely.
+- For large/wide data and non-iterative transformations, the native Spark
+  expression path is preferable.
+- mapPartitions NumPy without Arrow pays Python serialization overhead and
+  is only competitive when kernels dominate.
+
+See `01_frameworks/07_optimizations_stepwise.py` for stepwise optimizations
+that build on this baseline and improve performance further.
 """
 
 from __future__ import annotations
