@@ -8,11 +8,10 @@ and apply one optimization at a time, measuring the impact so teams can
 decide which changes matter.
 
 Optimizations covered (built on 06 baseline: Arrow→pandas→NumPy/Numba):
-1) Column projection (reduce width before Arrow conversion)
+1) Column projection (assumed best practice: reduce width before Arrow conversion)
 2) Dtype tuning (float64 → float32)
-3) JIT warmup/caching (amortize compilation)
-4) Thread controls (avoid oversubscription)
-5) Spark knobs (Arrow batch, shuffle partitions)
+3) Repartition by entity + streaming mapInPandas with fused kernel
+4) Approximate sigmoid math (tanh-based)
 
 We reuse kernels from utils/modelpkg.py and generate a markdown report.
 """
