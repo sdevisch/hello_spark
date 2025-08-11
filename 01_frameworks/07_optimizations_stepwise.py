@@ -222,21 +222,27 @@ def main():
     # Avoid converting unused wide columns before Arrow → pandas.
     print("\nℹ️  Projection is assumed: converting only needed columns (avoid full width).")
 
-    # Step 2: streaming iterator UDF (mapInPandas), fused kernel
-    print("\n== Step 2: Repartition by entity + mapInPandas (fused kernel) ==")
+    # Step 2: dtype tuning to float32 (baseline path)
+    print("\n== Step 2: Dtype tuning (float32 compute on Arrow→pandas path) ==")
+    t_f32 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
+    print(f"   Δ vs baseline (float64): {t_f32 - t_base:+.3f}s")
+
+    # Step 3: streaming iterator UDF (mapInPandas), fused kernel
+    print("\n== Step 3: Repartition by entity + mapInPandas (fused kernel) ==")
     t_stream = step2_streaming_map_in_pandas(spark, step1_projection(base), horizon, use_float32=True, approx_sigmoid=False)
     print(f"   Δ vs baseline: {t_stream - t_base:+.3f}s")
 
-    # Step 3: approximate sigmoid (faster math)
-    print("\n== Step 3: Approximate sigmoid (tanh-based) in fused kernel ==")
+    # Step 4: approximate sigmoid (faster math)
+    print("\n== Step 4: Approximate sigmoid (tanh-based) in fused kernel ==")
     t_stream_approx = step2_streaming_map_in_pandas(spark, step1_projection(base), horizon, use_float32=True, approx_sigmoid=True)
-    print(f"   Δ vs step2: {t_stream_approx - t_stream:+.3f}s")
+    print(f"   Δ vs step3: {t_stream_approx - t_stream:+.3f}s")
 
     # Summary
     print("\n🏁 Summary (lower is better):")
     print(f"   Baseline (slim):     {t_base:.3f}s")
-    print(f"   Step 2 (stream):     {t_stream:.3f}s")
-    print(f"   Step 3 (approx σ):   {t_stream_approx:.3f}s")
+    print(f"   Step 2 (float32):    {t_f32:.3f}s")
+    print(f"   Step 3 (stream):     {t_stream:.3f}s")
+    print(f"   Step 4 (approx σ):   {t_stream_approx:.3f}s")
 
     spark.stop()
 

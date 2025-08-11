@@ -1,6 +1,6 @@
 # Frameworks: Stepwise optimizations for model scoring
 
-Generated: 2025-08-11 02:41 UTC
+Generated: 2025-08-11 02:43 UTC
 
 ## Console output
 
@@ -11,18 +11,23 @@ Generated: 2025-08-11 02:41 UTC
 rows=600,000, entities=1,000, horizon=36, wide=100
 
 == Baseline (06): Arrow→pandas→NumPy/Numba (slim cols, float64) ==
-   convert: 0.712s | transform: 0.195s | forecast: 0.204s | total: 1.110s
+   convert: 0.611s | transform: 0.184s | forecast: 0.204s | total: 0.999s
 
 ℹ️  Projection is assumed: converting only needed columns (avoid full width).
 
-== Step 2: Repartition by entity + mapInPandas (fused kernel) ==
-   Δ vs baseline: +0.923s
+== Step 2: Dtype tuning (float32 compute on Arrow→pandas path) ==
+   convert: 0.170s | transform: 0.005s | forecast: 0.049s | total: 0.224s
+   Δ vs baseline (float64): -0.775s
 
-== Step 3: Approximate sigmoid (tanh-based) in fused kernel ==
-   Δ vs step2: -1.423s
+== Step 3: Repartition by entity + mapInPandas (fused kernel) ==
+   Δ vs baseline: +1.040s
+
+== Step 4: Approximate sigmoid (tanh-based) in fused kernel ==
+   Δ vs step3: -1.402s
 
 🏁 Summary (lower is better):
-   Baseline (slim):     1.110s
-   Step 2 (stream):     2.033s
-   Step 3 (approx σ):   0.610s
+   Baseline (slim):     0.999s
+   Step 2 (float32):    0.224s
+   Step 3 (stream):     2.039s
+   Step 4 (approx σ):   0.637s
 ```
