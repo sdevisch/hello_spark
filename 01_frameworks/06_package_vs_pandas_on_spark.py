@@ -146,6 +146,61 @@ def _estimate_bytes(rows: int, cols: int, dtype_bytes: int = 8) -> float:
     return float(rows) * float(cols) * float(dtype_bytes)
 
 
+def run_distributed_numpy_no_arrow(spark: SparkSession, df, horizon: int):
+    """Run NumPy/Numba kernels inside executors via mapPartitions, avoiding Arrow.
+
+    Notes:
+    - This treats each partition independently (state resets at partition boundaries).
+    - Demonstrates distributed NumPy without Arrow acceleration; significant Python
+      serialization overhead is expected compared to native Spark or Arrow paths.
+    """
+    print("\n== Distributed NumPy (no Arrow): mapPartitions on executors ==")
+
+    # Restrict to necessary columns to limit serialization volume
+    sdf = df.select("entity_id", "t", "values", "prices", "flag", "cat")
+
+    def proc(iter_rows):
+        import numpy as _np
+        from utils.modelpkg import transform_features as _tf, iterative_forecast as _if
+
+        entity_list = []
+        values_list = []
+        prices_list = []
+        flag_list = []
+        cat_list = []
+
+        for r in iter_rows:
+            entity_list.append(int(r[0]))
+            # r[1] is t (ignored here)
+            values_list.append(float(r[2]))
+            prices_list.append(float(r[3]))
+            flag_list.append(float(r[4]))
+            cat_list.append(float(r[5]))
+
+        if not entity_list:
+            return iter([])
+
+        entity = _np.asarray(entity_list, dtype=_np.int64)
+        values = _np.asarray(values_list, dtype=_np.float64)
+        prices = _np.asarray(prices_list, dtype=_np.float64)
+        exog = _np.stack((_np.asarray(flag_list, dtype=_np.float64), _np.asarray(cat_list, dtype=_np.float64)), axis=1)
+
+        base = _tf(values, prices, exog)
+        y = _if(entity, base, horizon=horizon, alpha=0.3, beta=0.6)
+        # Return a small aggregate to reduce shuffle
+        return iter([(float(_np.mean(y)), len(y))])
+
+    t0 = time.time()
+    parts = sdf.rdd.mapPartitions(proc).collect()
+    t_total = time.time() - t0
+
+    total_len = sum(n for _, n in parts) if parts else 0
+    mean_y = (sum(s * n for s, n in parts) / total_len) if total_len > 0 else float("nan")
+
+    print(f"   partitions: {len(parts)}, rows: {total_len:,}, time: {t_total:.3f}s, mean(y)={mean_y:.4f}")
+    return {"total": t_total, "rows": total_len, "partitions": len(parts)}
+
+
 def run_scenario(spark: SparkSession, name: str, rows: int, entities: int, horizon: int, wide_cols: int, mem_gb: float):
     print("\n" + "=" * 80)
     print(f"🧪 Scenario: {name}")
@@ -167,6 +222,7 @@ def run_scenario(spark: SparkSession, name: str, rows: int, entities: int, horiz
         print("   ⚠️ Skipping package path: dataset too large to safely collect to driver")
 
     ps = run_pandas_on_spark(spark, df, horizon=horizon)
+    dist_np = run_distributed_numpy_no_arrow(spark, df, horizon=horizon)
 
     # Summary
     print("\n📊 Scenario summary:")
@@ -180,6 +236,9 @@ def run_scenario(spark: SparkSession, name: str, rows: int, entities: int, horiz
         print(f"   pandas-on-Spark total: {total_ps:.3f}s (tf={ps['transform']:.3f}s, fc={ps['forecast']:.3f}s)")
     else:
         print("   pandas-on-Spark total: n/a (ps unavailable)")
+
+    if dist_np:
+        print(f"   Distributed NumPy (no Arrow): {dist_np['total']:.3f}s across {dist_np['partitions']} partitions")
 
     print("\n🧭 Guidance:")
     print("   • Package path excels when compute is heavy (large horizon) and data fits in memory.")

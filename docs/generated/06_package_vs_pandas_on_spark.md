@@ -1,6 +1,6 @@
 # Frameworks: Package (Numba/NumPy) vs pandas-on-Spark
 
-Generated: 2025-08-11 01:21 UTC
+Generated: 2025-08-11 01:25 UTC
 
 ## Console output
 
@@ -17,14 +17,18 @@ rows=300,000, entities=500, horizon=48, wide_cols=0
    Built panel rows: 300,000
 
 == Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==
-   Convert (Arrow): 0.517s; transform: 0.201s; forecast: 0.195s
+   Convert (Arrow): 0.516s; transform: 0.196s; forecast: 0.192s
 
 == Spark path (pandas-like logic via Spark SQL functions) ==
-   transform(spark): 0.201s; forecast(spark, 48 steps): 1.125s
+   transform(spark): 0.248s; forecast(spark, 48 steps): 1.126s
+
+== Distributed NumPy (no Arrow): mapPartitions on executors ==
+   partitions: 11, rows: 300,000, time: 1.646s, mean(y)=0.9989
 
 📊 Scenario summary:
-   Package path total: 0.913s  (convert=0.517s, tf=0.201s, fc=0.195s, numba=True)
-   pandas-on-Spark total: 1.326s (tf=0.201s, fc=1.125s)
+   Package path total: 0.904s  (convert=0.516s, tf=0.196s, fc=0.192s, numba=True)
+   pandas-on-Spark total: 1.374s (tf=0.248s, fc=1.126s)
+   Distributed NumPy (no Arrow): 1.646s across 11 partitions
 
 🧭 Guidance:
    • Package path excels when compute is heavy (large horizon) and data fits in memory.
@@ -38,14 +42,18 @@ rows=600,000, entities=1,000, horizon=36, wide_cols=50
    Built panel rows: 600,000
 
 == Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==
-   Convert (Arrow): 0.220s; transform: 0.001s; forecast: 0.050s
+   Convert (Arrow): 0.183s; transform: 0.001s; forecast: 0.044s
 
 == Spark path (pandas-like logic via Spark SQL functions) ==
-   transform(spark): 0.220s; forecast(spark, 36 steps): 0.784s
+   transform(spark): 0.156s; forecast(spark, 36 steps): 0.766s
+
+== Distributed NumPy (no Arrow): mapPartitions on executors ==
+   partitions: 11, rows: 600,000, time: 0.590s, mean(y)=0.9988
 
 📊 Scenario summary:
-   Package path total: 0.271s  (convert=0.220s, tf=0.001s, fc=0.050s, numba=True)
-   pandas-on-Spark total: 1.004s (tf=0.220s, fc=0.784s)
+   Package path total: 0.228s  (convert=0.183s, tf=0.001s, fc=0.044s, numba=True)
+   pandas-on-Spark total: 0.922s (tf=0.156s, fc=0.766s)
+   Distributed NumPy (no Arrow): 0.590s across 11 partitions
 
 🧭 Guidance:
    • Package path excels when compute is heavy (large horizon) and data fits in memory.
@@ -59,14 +67,18 @@ rows=400,000, entities=1,000, horizon=24, wide_cols=200
    Built panel rows: 400,000
 
 == Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==
-   Convert (Arrow): 0.467s; transform: 0.001s; forecast: 0.022s
+   Convert (Arrow): 0.424s; transform: 0.001s; forecast: 0.026s
 
 == Spark path (pandas-like logic via Spark SQL functions) ==
-   transform(spark): 0.838s; forecast(spark, 24 steps): 2.362s
+   transform(spark): 0.839s; forecast(spark, 24 steps): 2.323s
+
+== Distributed NumPy (no Arrow): mapPartitions on executors ==
+   partitions: 11, rows: 400,000, time: 0.389s, mean(y)=0.9989
 
 📊 Scenario summary:
-   Package path total: 0.490s  (convert=0.467s, tf=0.001s, fc=0.022s, numba=True)
-   pandas-on-Spark total: 3.200s (tf=0.838s, fc=2.362s)
+   Package path total: 0.451s  (convert=0.424s, tf=0.001s, fc=0.026s, numba=True)
+   pandas-on-Spark total: 3.163s (tf=0.839s, fc=2.323s)
+   Distributed NumPy (no Arrow): 0.389s across 11 partitions
 
 🧭 Guidance:
    • Package path excels when compute is heavy (large horizon) and data fits in memory.
@@ -80,14 +92,18 @@ rows=2,000,000, entities=2,000, horizon=12, wide_cols=50
    Built panel rows: 2,000,000
 
 == Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==
-   Convert (Arrow): 0.343s; transform: 0.004s; forecast: 0.039s
+   Convert (Arrow): 0.343s; transform: 0.004s; forecast: 0.038s
 
 == Spark path (pandas-like logic via Spark SQL functions) ==
-   transform(spark): 0.174s; forecast(spark, 12 steps): 0.415s
+   transform(spark): 0.326s; forecast(spark, 12 steps): 0.454s
+
+== Distributed NumPy (no Arrow): mapPartitions on executors ==
+   partitions: 11, rows: 2,000,000, time: 1.221s, mean(y)=0.9989
 
 📊 Scenario summary:
-   Package path total: 0.386s  (convert=0.343s, tf=0.004s, fc=0.039s, numba=True)
-   pandas-on-Spark total: 0.588s (tf=0.174s, fc=0.415s)
+   Package path total: 0.385s  (convert=0.343s, tf=0.004s, fc=0.038s, numba=True)
+   pandas-on-Spark total: 0.780s (tf=0.326s, fc=0.454s)
+   Distributed NumPy (no Arrow): 1.221s across 11 partitions
 
 🧭 Guidance:
    • Package path excels when compute is heavy (large horizon) and data fits in memory.
