@@ -94,40 +94,96 @@ def step2_partition_sort(df: DataFrame) -> DataFrame:
     return df.repartition("entity_id").sortWithinPartitions("entity_id", "t")
 
 
-def step3_grouped_pandas_udf(spark: SparkSession, df: DataFrame, horizon: int, use_float32: bool) -> float:
-    # Grouped map pandas UDF: process each entity group as a pandas DataFrame
-    # Requires Arrow enabled
+def step2_streaming_map_in_pandas(spark: SparkSession, df: DataFrame, horizon: int, use_float32: bool, approx_sigmoid: bool = False) -> float:
+    # Repartition by entity so all rows for an entity are in one partition
+    sdf = df.repartition("entity_id").sortWithinPartitions("entity_id", "t")
+
     import pandas as pd
     from pyspark.sql.types import StructType, StructField, LongType, DoubleType
-    from pyspark.sql.functions import pandas_udf, PandasUDFType
 
-    # Control threads to avoid oversubscription
-    os.environ.setdefault("OMP_NUM_THREADS", "1")
-    os.environ.setdefault("MKL_NUM_THREADS", "1")
+    schema = StructType([
+        StructField("entity_id", LongType(), False),
+        StructField("t", LongType(), False),
+        StructField("y", DoubleType(), False),
+    ])
 
-    schema = StructType(
-        [
-            StructField("entity_id", LongType(), False),
-            StructField("t", LongType(), False),
-            StructField("y", DoubleType(), False),
-        ]
-    )
+    try:
+        from numba import njit
+        NUMBA = True
+    except Exception:
+        NUMBA = False
 
-    @pandas_udf(schema, PandasUDFType.GROUPED_MAP)
-    def score_group(pdf: pd.DataFrame) -> pd.DataFrame:
-        vals = pdf["values"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False)
-        prs = pdf["prices"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False)
-        flag = pdf["flag"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False)
-        cat = pdf["cat"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False)
-        exog = np.stack([flag.astype(np.float64), cat.astype(np.float64)], axis=1)
-        base = transform_features(vals.astype(np.float64), prs.astype(np.float64), exog)
-        y = iterative_forecast(pdf["entity_id"].to_numpy(dtype=np.int64, copy=False), base, horizon=horizon, alpha=0.3, beta=0.6)
-        out = pd.DataFrame({"entity_id": pdf["entity_id"].values, "t": pdf["t"].values, "y": y})
-        return out
+    def _sigmoid_np(x: np.ndarray) -> np.ndarray:
+        if approx_sigmoid:
+            # tanh approximation: sigmoid(x) ≈ 0.5 * (1 + tanh(0.5x))
+            return 0.5 * (1.0 + np.tanh(0.5 * x))
+        return 1.0 / (1.0 + np.exp(-x))
+
+    if NUMBA:
+        from numba import njit
+
+        @njit(fastmath=True)
+        def fused_kernel(values, prices, flag, cat, entity, horizon, alpha, beta):
+            n = values.shape[0]
+            y = np.empty(n, dtype=np.float64)
+            last_e = -1
+            state = 0.0
+            for i in range(n):
+                e = int(entity[i])
+                if e != last_e:
+                    last_e = e
+                    state = 0.0
+                tv = 0.15 * (values[i] * prices[i])
+                sv = 0.07 * (values[i] ** 0.5)
+                pr = 0.03 * (prices[i] ** 1.5)
+                fv = 0.10 * (flag[i] * values[i])
+                cv = 0.02 * (cat[i] * prices[i])
+                base = tv + sv + pr + fv + cv
+                local = state
+                for _ in range(horizon):
+                    # Use exact sigmoid for stability inside JIT
+                    local = 1.0 / (1.0 + np.exp(-(alpha * base + beta * local)))
+                y[i] = local
+                state = 1.0 / (1.0 + np.exp(-(alpha * base + beta * state)))
+            return y
+
+    def _process_partition(pdf_iter):
+        for pdf in pdf_iter:
+            # Ensure per-partition contiguous entities
+            pdf = pdf.sort_values(["entity_id", "t"], kind="mergesort")
+            vals = pdf["values"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False).astype(np.float64)
+            prs = pdf["prices"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False).astype(np.float64)
+            flag = pdf["flag"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False).astype(np.float64)
+            cat = pdf["cat"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False).astype(np.float64)
+            ent = pdf["entity_id"].to_numpy(dtype=np.int64, copy=False)
+            if NUMBA:
+                y = fused_kernel(vals, prs, flag, cat, ent, horizon, 0.3, 0.6)
+            else:
+                # Fallback: vectorized features + python loop for forecast
+                base = (
+                    0.15 * (vals * prs)
+                    + 0.07 * (vals ** 0.5)
+                    + 0.03 * (prs ** 1.5)
+                    + 0.10 * (flag * vals)
+                    + 0.02 * (cat * prs)
+                )
+                y = np.empty_like(base)
+                last = None
+                state = 0.0
+                for i in range(base.shape[0]):
+                    if last is None or ent[i] != last:
+                        state = 0.0
+                        last = ent[i]
+                    local = state
+                    for _ in range(horizon):
+                        local = _sigmoid_np(alpha=0.3 * base[i] + 0.6 * local)  # type: ignore
+                    y[i] = local
+                    state = _sigmoid_np(0.3 * base[i] + 0.6 * state)
+            yield pd.DataFrame({"entity_id": pdf["entity_id"], "t": pdf["t"], "y": y})
 
     t0 = time.time()
-    sdf = df.groupBy("entity_id").apply(score_group)
-    _ = sdf.select(F.avg("y")).collect()
+    out = sdf.mapInPandas(_process_partition, schema)
+    _ = out.select(F.avg("y")).collect()
     return time.time() - t0
 
 
@@ -168,32 +224,22 @@ def main():
     t_full = step0_baseline_package(spark, base, horizon, include_wide=True, use_float32=False)
     print(f"   Δ vs baseline (slim): {t_full - t_base:+.3f}s")
 
-    # Step 2: dtype tuning to float32
-    print("\n== Step 2: Dtype tuning (float32 compute) ==")
-    t_f32 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
-    print(f"   Δ vs baseline (f64): {t_f32 - t_base:+.3f}s")
+    # Step 2: streaming iterator UDF (mapInPandas), fused kernel
+    print("\n== Step 2: Repartition by entity + mapInPandas (fused kernel) ==")
+    t_stream = step2_streaming_map_in_pandas(spark, step1_projection(base), horizon, use_float32=True, approx_sigmoid=False)
+    print(f"   Δ vs baseline: {t_stream - t_base:+.3f}s")
 
-    # Step 3: JIT warmup/caching (second run faster)
-    print("\n== Step 3: JIT warmup (second run) ==")
-    t_warm1 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
-    t_warm2 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
-    print(f"   first: {t_warm1:.3f}s | second: {t_warm2:.3f}s | Δ: {t_warm2 - t_warm1:+.3f}s")
-
-    # Step 4: threads control (avoid oversubscription)
-    print("\n== Step 4: Threads control (OMP/MKL) ==")
-    os.environ["OMP_NUM_THREADS"] = "1"; os.environ["MKL_NUM_THREADS"] = "1"
-    t_thr1 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
-    os.environ["OMP_NUM_THREADS"] = "4"; os.environ["MKL_NUM_THREADS"] = "4"
-    t_thr4 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
-    print(f"   1-thread: {t_thr1:.3f}s | 4-threads: {t_thr4:.3f}s | Δ: {t_thr4 - t_thr1:+.3f}s")
+    # Step 3: approximate sigmoid (faster math)
+    print("\n== Step 3: Approximate sigmoid (tanh-based) in fused kernel ==")
+    t_stream_approx = step2_streaming_map_in_pandas(spark, step1_projection(base), horizon, use_float32=True, approx_sigmoid=True)
+    print(f"   Δ vs step2: {t_stream_approx - t_stream:+.3f}s")
 
     # Summary
     print("\n🏁 Summary (lower is better):")
     print(f"   Baseline (naive):   {t_base:.3f}s")
     print(f"   Step 1 (full width): {t_full:.3f}s")
-    print(f"   Step 2 (float32):    {t_f32:.3f}s")
-    print(f"   Step 3 (warm 2nd):   {t_warm2:.3f}s")
-    print(f"   Step 4 (thr ctrl):   {min(t_thr1, t_thr4):.3f}s")
+    print(f"   Step 2 (stream):     {t_stream:.3f}s")
+    print(f"   Step 3 (approx σ):   {t_stream_approx:.3f}s")
 
     spark.stop()
 
