@@ -219,10 +219,9 @@ def main():
     print("\n== Baseline (06): Arrow→pandas→NumPy/Numba (slim cols, float64) ==")
     t_base = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=False)
 
-    # Step 1: demonstrate projection impact (convert full width)
-    print("\n== Step 1: Projection (convert all wide columns vs slim) ==")
-    t_full = step0_baseline_package(spark, base, horizon, include_wide=True, use_float32=False)
-    print(f"   Δ vs baseline (slim): {t_full - t_base:+.3f}s")
+    # Note: Projection of needed columns only is assumed from the baseline onward.
+    # Avoid converting unused wide columns before Arrow → pandas.
+    print("\nℹ️  Projection is assumed: converting only needed columns (avoid full width).")
 
     # Step 2: streaming iterator UDF (mapInPandas), fused kernel
     print("\n== Step 2: Repartition by entity + mapInPandas (fused kernel) ==")
@@ -236,8 +235,7 @@ def main():
 
     # Summary
     print("\n🏁 Summary (lower is better):")
-    print(f"   Baseline (naive):   {t_base:.3f}s")
-    print(f"   Step 1 (full width): {t_full:.3f}s")
+    print(f"   Baseline (slim):     {t_base:.3f}s")
     print(f"   Step 2 (stream):     {t_stream:.3f}s")
     print(f"   Step 3 (approx σ):   {t_stream_approx:.3f}s")
 
