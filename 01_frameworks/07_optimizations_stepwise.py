@@ -3,9 +3,9 @@
 Frameworks: Stepwise optimizations for model scoring (impact breakdown)
 ======================================================================
 
-Goal: starting from a naive implementation of complex feature transforms
-and iterative forecasts, apply one optimization at a time and measure the
-impact.
+Context: Builds directly on 06 (baseline). We take the same scoring task
+and apply one optimization at a time, measuring the impact so teams can
+decide which changes matter.
 
 Optimizations covered:
 1) Column projection (reduce width)
