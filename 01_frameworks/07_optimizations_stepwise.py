@@ -7,12 +7,12 @@ Context: Builds directly on 06 (baseline). We take the same scoring task
 and apply one optimization at a time, measuring the impact so teams can
 decide which changes matter.
 
-Optimizations covered:
-1) Column projection (reduce width)
-2) Partitioning by entity_id and ordering within partition
-3) Switch from naive Spark loops to grouped Pandas UDF with Arrow (per-entity)
-4) Tune Arrow batch size and Spark shuffle partitions
-5) Kernel/dtype tuning (float32), JIT warmup and threads control
+Optimizations covered (built on 06 baseline: Arrow→pandas→NumPy/Numba):
+1) Column projection (reduce width before Arrow conversion)
+2) Dtype tuning (float64 → float32)
+3) JIT warmup/caching (amortize compilation)
+4) Thread controls (avoid oversubscription)
+5) Spark knobs (Arrow batch, shuffle partitions)
 
 We reuse kernels from utils/modelpkg.py and generate a markdown report.
 """
@@ -55,23 +55,34 @@ def build_base(spark: SparkSession, rows: int, entities: int, wide_cols: int = 0
     return base
 
 
-def step0_naive_spark_loops(df: DataFrame, horizon: int) -> float:
+def _package_run(pdf, horizon: int, use_float32: bool) -> tuple[float, float]:
+    # Returns (transform_s, forecast_s)
+    t1 = time.time()
+    vals = pdf["values"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False)
+    prs = pdf["prices"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False)
+    flag = pdf["flag"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False)
+    cat = pdf["cat"].to_numpy(dtype=np.float32 if use_float32 else np.float64, copy=False)
+    exog = np.stack([flag.astype(np.float64), cat.astype(np.float64)], axis=1)
+    base = transform_features(vals.astype(np.float64), prs.astype(np.float64), exog)
+    t_tf = time.time() - t1
+    t2 = time.time()
+    _ = iterative_forecast(pdf["entity_id"].to_numpy(dtype=np.int64, copy=False), base, horizon=horizon, alpha=0.3, beta=0.6)
+    t_fc = time.time() - t2
+    return t_tf, t_fc
+
+
+def step0_baseline_package(spark: SparkSession, df: DataFrame, horizon: int, include_wide: bool, use_float32: bool) -> float:
+    # Arrow → pandas conversion (slim vs wide), then NumPy/Numba kernels
+    cols = ["entity_id", "values", "prices", "flag", "cat"]
+    if include_wide:
+        cols = df.columns  # convert all
     t0 = time.time()
-    sdf = df.select("entity_id", "t", "values", "prices", "flag", "cat")
-    sdf = sdf.withColumn(
-        "feat",
-        0.15 * (col("values") * col("prices"))
-        + 0.07 * (col("values") ** F.lit(0.5))
-        + 0.03 * (col("prices") ** F.lit(1.5))
-        + 0.10 * (col("flag").cast("double") * col("values"))
-        + 0.02 * (col("cat").cast("double") * col("prices")),
-    )
-    _ = sdf.select(F.avg("feat")).collect()
-    sdf = sdf.withColumn("y", F.lit(0.0))
-    for _ in range(horizon):
-        sdf = sdf.withColumn("y", 1.0 / (1.0 + F.exp(-(0.3 * col("feat") + 0.6 * col("y")))))
-    _ = sdf.select(F.avg("y")).collect()
-    return time.time() - t0
+    pdf = df.select(*cols).toPandas()
+    t_conv = time.time() - t0
+    t_tf, t_fc = _package_run(pdf, horizon, use_float32=use_float32)
+    total = t_conv + t_tf + t_fc
+    print(f"   convert: {t_conv:.3f}s | transform: {t_tf:.3f}s | forecast: {t_fc:.3f}s | total: {total:.3f}s")
+    return total
 
 
 def step1_projection(df: DataFrame) -> DataFrame:
@@ -79,7 +90,7 @@ def step1_projection(df: DataFrame) -> DataFrame:
 
 
 def step2_partition_sort(df: DataFrame) -> DataFrame:
-    # Hash partition by entity and preserve order for better locality
+    # Kept for completeness if teams want a Spark-native path; not used in package baseline
     return df.repartition("entity_id").sortWithinPartitions("entity_id", "t")
 
 
@@ -121,7 +132,7 @@ def step3_grouped_pandas_udf(spark: SparkSession, df: DataFrame, horizon: int, u
 
 
 def main():
-    print("🚀 Stepwise optimization experiment")
+    print("🚀 Stepwise optimization experiment (built on 06 baseline: Arrow→pandas→NumPy/Numba)")
     print("📚 Docs index: docs/index.md")
     mem = get_total_memory_gb()
     print(f"💻 System memory: {mem:.1f} GB")
@@ -148,40 +159,41 @@ def main():
     base = build_base(spark, rows=rows, entities=entities, wide_cols=wide).cache()
     _ = base.count()
 
-    # Baseline
-    print("\n== Baseline: naive Spark with iterative withColumn loops ==")
-    t_base = step0_naive_spark_loops(base, horizon)
-    print(f"   time: {t_base:.3f}s")
+    # Baseline: package path (Arrow→pandas→NumPy/Numba), slim, float64
+    print("\n== Baseline (06): Arrow→pandas→NumPy/Numba (slim cols, float64) ==")
+    t_base = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=False)
 
-    # Step 1: projection
-    print("\n== Step 1: Project needed columns early ==")
-    proj = step1_projection(base).cache(); _ = proj.count()
-    t_proj = step0_naive_spark_loops(proj, horizon)
-    print(f"   time: {t_proj:.3f}s  (delta vs baseline: {t_proj - t_base:+.3f}s)")
+    # Step 1: demonstrate projection impact (convert full width)
+    print("\n== Step 1: Projection (convert all wide columns vs slim) ==")
+    t_full = step0_baseline_package(spark, base, horizon, include_wide=True, use_float32=False)
+    print(f"   Δ vs baseline (slim): {t_full - t_base:+.3f}s")
 
-    # Step 2: partitioning and order
-    print("\n== Step 2: Repartition by entity_id and sort within partitions ==")
-    part = step2_partition_sort(proj).cache(); _ = part.count()
-    t_part = step0_naive_spark_loops(part, horizon)
-    print(f"   time: {t_part:.3f}s  (delta vs step1: {t_part - t_proj:+.3f}s)")
+    # Step 2: dtype tuning to float32
+    print("\n== Step 2: Dtype tuning (float32 compute) ==")
+    t_f32 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
+    print(f"   Δ vs baseline (f64): {t_f32 - t_base:+.3f}s")
 
-    # Step 3a: grouped pandas UDF (float64)
-    print("\n== Step 3a: Grouped Pandas UDF per entity (float64) with Arrow ==")
-    t_gp64 = step3_grouped_pandas_udf(spark, part, horizon, use_float32=False)
-    print(f"   time: {t_gp64:.3f}s  (delta vs step2: {t_gp64 - t_part:+.3f}s)")
+    # Step 3: JIT warmup/caching (second run faster)
+    print("\n== Step 3: JIT warmup (second run) ==")
+    t_warm1 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
+    t_warm2 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
+    print(f"   first: {t_warm1:.3f}s | second: {t_warm2:.3f}s | Δ: {t_warm2 - t_warm1:+.3f}s")
 
-    # Step 3b: grouped pandas UDF (float32)
-    print("\n== Step 3b: Grouped Pandas UDF per entity (float32) with Arrow ==")
-    t_gp32 = step3_grouped_pandas_udf(spark, part, horizon, use_float32=True)
-    print(f"   time: {t_gp32:.3f}s  (delta vs 3a: {t_gp32 - t_gp64:+.3f}s)")
+    # Step 4: threads control (avoid oversubscription)
+    print("\n== Step 4: Threads control (OMP/MKL) ==")
+    os.environ["OMP_NUM_THREADS"] = "1"; os.environ["MKL_NUM_THREADS"] = "1"
+    t_thr1 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
+    os.environ["OMP_NUM_THREADS"] = "4"; os.environ["MKL_NUM_THREADS"] = "4"
+    t_thr4 = step0_baseline_package(spark, step1_projection(base), horizon, include_wide=False, use_float32=True)
+    print(f"   1-thread: {t_thr1:.3f}s | 4-threads: {t_thr4:.3f}s | Δ: {t_thr4 - t_thr1:+.3f}s")
 
     # Summary
     print("\n🏁 Summary (lower is better):")
     print(f"   Baseline (naive):   {t_base:.3f}s")
-    print(f"   Step 1 (project):  {t_proj:.3f}s")
-    print(f"   Step 2 (partition):{t_part:.3f}s")
-    print(f"   Step 3a (gp udf64):{t_gp64:.3f}s")
-    print(f"   Step 3b (gp udf32):{t_gp32:.3f}s")
+    print(f"   Step 1 (full width): {t_full:.3f}s")
+    print(f"   Step 2 (float32):    {t_f32:.3f}s")
+    print(f"   Step 3 (warm 2nd):   {t_warm2:.3f}s")
+    print(f"   Step 4 (thr ctrl):   {min(t_thr1, t_thr4):.3f}s")
 
     spark.stop()
 
