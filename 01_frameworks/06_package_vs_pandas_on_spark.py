@@ -41,6 +41,12 @@ import pyspark.sql.functions as F
 from pyspark.sql.functions import col
 
 
+def _fix_numpy_compatibility() -> None:
+    os.environ.setdefault("PYARROW_IGNORE_TIMEZONE", "1")
+    if not hasattr(np, "NaN") and hasattr(np, "nan"):
+        np.NaN = np.nan  # type: ignore[attr-defined]
+
+
 def build_spark_data(spark: SparkSession, rows: int, entities: int, wide_cols: int = 0):
     from pyspark.sql.window import Window
 
@@ -105,44 +111,34 @@ def run_package_path(spark: SparkSession, df, horizon: int):
 
 
 def run_pandas_on_spark(spark: SparkSession, df, horizon: int):
-    print("\n== pandas-on-Spark path: keep work in Spark plan ==")
-    try:
-        import pyspark.pandas as ps
-    except Exception as e:
-        print(f"   pandas-on-Spark unavailable: {e}")
-        return None
+    print("\n== Spark path (pandas-like logic via Spark SQL functions) ==")
+    _fix_numpy_compatibility()
 
-    # Create ps.DataFrame from Spark df
-    try:
-        # Only keep columns actually used for the computation to avoid overhead from wide extras
-        psdf = ps.DataFrame(df.select("entity_id", "t", "values", "prices", "flag", "cat"))
-    except Exception as e:
-        print(f"   ⚠️ pandas-on-Spark conversion failed: {str(e)[:120]}...")
-        return None
+    # Keep only required columns to limit width
+    sdf = df.select("entity_id", "t", "values", "prices", "flag", "cat")
 
-    # Vectorizable part as column expressions (avoid tight Python loops)
+    # Vectorizable transform using Spark expressions (no NumPy)
     t0 = time.time()
-    psdf = psdf.assign(
-        feat=0.15 * (psdf.values * psdf.prices)
-             + 0.07 * (psdf.values ** 0.5)
-             + 0.03 * (psdf.prices ** 1.5)
-             + 0.10 * (psdf.flag * psdf.values)
-             + 0.02 * (psdf.cat * psdf.prices)
+    sdf = sdf.withColumn(
+        "feat",
+        0.15 * (col("values") * col("prices"))
+        + 0.07 * (col("values") ** F.lit(0.5))
+        + 0.03 * (col("prices") ** F.lit(1.5))
+        + 0.10 * (col("flag").cast("double") * col("values"))
+        + 0.02 * (col("cat").cast("double") * col("prices")),
     )
+    _ = sdf.select(F.avg("feat")).collect()  # materialize
     t_tf = time.time() - t0
 
-    # Iterative forecast across horizon is not friendly to ps; emulate with
-    # repeated map (still executes as Spark jobs). This highlights where 
-    # pandas-on-Spark is less suited than a compiled kernel.
+    # Iterative forecast via repeated column updates (still runs in Spark)
     t1 = time.time()
-    y = psdf.feat
+    sdf = sdf.withColumn("y", F.lit(0.0))
     for _ in range(horizon):
-        y = 1.0 / (1.0 + np.exp(-(0.3 * psdf.feat + 0.6 * y)))
-    # Force materialization (e.g., count)
-    _ = y.to_frame().count()
+        sdf = sdf.withColumn("y", 1.0 / (1.0 + F.exp(-(0.3 * col("feat") + 0.6 * col("y")))))
+    _ = sdf.select(F.avg("y")).collect()  # materialize
     t_fc = time.time() - t1
 
-    print(f"   transform(ps): {t_tf:.3f}s; forecast(ps, {horizon} steps): {t_fc:.3f}s")
+    print(f"   transform(spark): {t_tf:.3f}s; forecast(spark, {horizon} steps): {t_fc:.3f}s")
     return {"transform": t_tf, "forecast": t_fc}
 
 

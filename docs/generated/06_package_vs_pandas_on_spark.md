@@ -1,6 +1,6 @@
 # Frameworks: Package (Numba/NumPy) vs pandas-on-Spark
 
-Generated: 2025-08-11 01:16 UTC
+Generated: 2025-08-11 01:21 UTC
 
 ## Console output
 
@@ -17,16 +17,14 @@ rows=300,000, entities=500, horizon=48, wide_cols=0
    Built panel rows: 300,000
 
 == Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==
-   Convert (Arrow): 0.450s; transform: 0.179s; forecast: 0.189s
+   Convert (Arrow): 0.517s; transform: 0.201s; forecast: 0.195s
 
-== pandas-on-Spark path: keep work in Spark plan ==
-/Users/sdevisch/repos/hello_spark/.venv311/lib/python3.11/site-packages/pyspark/pandas/__init__.py:50: UserWarning: 'PYARROW_IGNORE_TIMEZONE' environment variable was not set. It is required to set this environment variable to '1' in both driver and executor sides if you use pyarrow>=2.0.0. pandas-on-Spark will set it for you but it does not work if there is a Spark context already launched.
-  warnings.warn(
-   pandas-on-Spark unavailable: `np.NaN` was removed in the NumPy 2.0 release. Use `np.nan` instead.
+== Spark path (pandas-like logic via Spark SQL functions) ==
+   transform(spark): 0.201s; forecast(spark, 48 steps): 1.125s
 
 📊 Scenario summary:
-   Package path total: 0.817s  (convert=0.450s, tf=0.179s, fc=0.189s, numba=True)
-   pandas-on-Spark total: n/a (ps unavailable)
+   Package path total: 0.913s  (convert=0.517s, tf=0.201s, fc=0.195s, numba=True)
+   pandas-on-Spark total: 1.326s (tf=0.201s, fc=1.125s)
 
 🧭 Guidance:
    • Package path excels when compute is heavy (large horizon) and data fits in memory.
@@ -40,14 +38,14 @@ rows=600,000, entities=1,000, horizon=36, wide_cols=50
    Built panel rows: 600,000
 
 == Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==
-   Convert (Arrow): 0.244s; transform: 0.001s; forecast: 0.050s
+   Convert (Arrow): 0.220s; transform: 0.001s; forecast: 0.050s
 
-== pandas-on-Spark path: keep work in Spark plan ==
-   pandas-on-Spark unavailable: `np.NaN` was removed in the NumPy 2.0 release. Use `np.nan` instead.
+== Spark path (pandas-like logic via Spark SQL functions) ==
+   transform(spark): 0.220s; forecast(spark, 36 steps): 0.784s
 
 📊 Scenario summary:
-   Package path total: 0.295s  (convert=0.244s, tf=0.001s, fc=0.050s, numba=True)
-   pandas-on-Spark total: n/a (ps unavailable)
+   Package path total: 0.271s  (convert=0.220s, tf=0.001s, fc=0.050s, numba=True)
+   pandas-on-Spark total: 1.004s (tf=0.220s, fc=0.784s)
 
 🧭 Guidance:
    • Package path excels when compute is heavy (large horizon) and data fits in memory.
@@ -61,14 +59,14 @@ rows=400,000, entities=1,000, horizon=24, wide_cols=200
    Built panel rows: 400,000
 
 == Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==
-   Convert (Arrow): 0.475s; transform: 0.001s; forecast: 0.022s
+   Convert (Arrow): 0.467s; transform: 0.001s; forecast: 0.022s
 
-== pandas-on-Spark path: keep work in Spark plan ==
-   pandas-on-Spark unavailable: `np.NaN` was removed in the NumPy 2.0 release. Use `np.nan` instead.
+== Spark path (pandas-like logic via Spark SQL functions) ==
+   transform(spark): 0.838s; forecast(spark, 24 steps): 2.362s
 
 📊 Scenario summary:
-   Package path total: 0.498s  (convert=0.475s, tf=0.001s, fc=0.022s, numba=True)
-   pandas-on-Spark total: n/a (ps unavailable)
+   Package path total: 0.490s  (convert=0.467s, tf=0.001s, fc=0.022s, numba=True)
+   pandas-on-Spark total: 3.200s (tf=0.838s, fc=2.362s)
 
 🧭 Guidance:
    • Package path excels when compute is heavy (large horizon) and data fits in memory.
@@ -82,14 +80,14 @@ rows=2,000,000, entities=2,000, horizon=12, wide_cols=50
    Built panel rows: 2,000,000
 
 == Package path: Spark → pandas (Arrow) → NumPy/Numba kernels ==
-   Convert (Arrow): 0.444s; transform: 0.006s; forecast: 0.046s
+   Convert (Arrow): 0.343s; transform: 0.004s; forecast: 0.039s
 
-== pandas-on-Spark path: keep work in Spark plan ==
-   pandas-on-Spark unavailable: `np.NaN` was removed in the NumPy 2.0 release. Use `np.nan` instead.
+== Spark path (pandas-like logic via Spark SQL functions) ==
+   transform(spark): 0.174s; forecast(spark, 12 steps): 0.415s
 
 📊 Scenario summary:
-   Package path total: 0.495s  (convert=0.444s, tf=0.006s, fc=0.046s, numba=True)
-   pandas-on-Spark total: n/a (ps unavailable)
+   Package path total: 0.386s  (convert=0.343s, tf=0.004s, fc=0.039s, numba=True)
+   pandas-on-Spark total: 0.588s (tf=0.174s, fc=0.415s)
 
 🧭 Guidance:
    • Package path excels when compute is heavy (large horizon) and data fits in memory.
