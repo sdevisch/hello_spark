@@ -1,6 +1,6 @@
 # Frameworks: Numbox DAG demo (appendix)
 
-Generated: 2025-08-10 22:53 UTC
+Generated: 2025-08-11 01:58 UTC
 
 ## Scope
 
@@ -20,84 +20,84 @@ Appendix: niche DAG structuring (Numbox) for specialized scenarios.
 🌐 Spark UI (No Arrow): http://localhost:4040
 🌐 Spark UI (With Arrow): http://localhost:4041
 ⏱️  Create Spark DataFrame (cached)
-   ✅ 0.9499s | ΔMem +0.000 GB
+   ✅ 0.9275s | ΔMem +0.000 GB
    ✅ Materialized rows: 300,000
 ⏱️  Spark→pandas (Arrow)
-   ✅ 0.4814s | ΔMem +0.051 GB
+   ✅ 0.4079s | ΔMem +0.050 GB
 ⏱️  Spark→pandas (No Arrow)
-   ✅ 5.7447s | ΔMem +0.076 GB
+   ✅ 5.6998s | ΔMem +0.189 GB
 ⏱️  [Arrow] Pandas pipeline
-   ✅ 0.0104s | ΔMem +0.027 GB
+   ✅ 0.0103s | ΔMem +0.000 GB
 ⏱️  [Arrow] Prepare NumPy arrays
    ✅ 0.0001s | ΔMem +0.000 GB
 ⏱️  [Arrow] NumPy pipeline (vectorized)
-   ✅ 0.0043s | ΔMem +0.000 GB
+   ✅ 0.0045s | ΔMem +0.000 GB
 ⏱️  [Arrow] Numba pipeline (monolithic @njit, parallel)
    ✅ 0.0004s | ΔMem +0.000 GB
 ⏱️  [Arrow] Numbox DAG (Node/Work/Proxy)
-   ✅ 0.2372s | ΔMem +0.011 GB
+   ✅ 0.2362s | ΔMem +0.000 GB
 ⏱️  [Arrow] NumPy complex DAG (run1)
-   ✅ 0.0107s | ΔMem +0.016 GB
+   ✅ 0.0111s | ΔMem +0.000 GB
 ⏱️  [Arrow] NumPy complex DAG (run2)
-   ✅ 0.0107s | ΔMem +0.000 GB
+   ✅ 0.0103s | ΔMem +0.000 GB
 ⏱️  [Arrow] Numba complex DAG (run1)
    ✅ 0.0006s | ΔMem +0.000 GB
 ⏱️  [Arrow] Numba complex DAG (run2)
-   ✅ 0.0005s | ΔMem +0.000 GB
+   ✅ 0.0006s | ΔMem +0.000 GB
 ⏱️  [Arrow] Numbox complex DAG (run1)
-   ✅ 0.2860s | ΔMem +0.006 GB
+   ✅ 0.2483s | ΔMem +0.000 GB
 ⏱️  [Arrow] Numbox complex DAG (run2)
-   ✅ 0.2564s | ΔMem +0.001 GB
+   ✅ 0.2844s | ΔMem +0.000 GB
 ⏱️  [NoArrow] Pandas pipeline
-   ✅ 0.0088s | ΔMem +0.013 GB
+   ✅ 0.0079s | ΔMem +0.000 GB
 ⏱️  [NoArrow] Prepare NumPy arrays
    ✅ 0.0001s | ΔMem +0.000 GB
 ⏱️  [NoArrow] NumPy pipeline (vectorized)
-   ✅ 0.0037s | ΔMem +0.009 GB
+   ✅ 0.0036s | ΔMem +0.000 GB
 ⏱️  [NoArrow] Numba pipeline (monolithic @njit, parallel)
    ✅ 0.0004s | ΔMem +0.000 GB
 ⏱️  [NoArrow] Numbox DAG (Node/Work/Proxy)
-   ✅ 0.2786s | ΔMem +0.002 GB
+   ✅ 0.2728s | ΔMem +0.000 GB
 ⏱️  [NoArrow] NumPy complex DAG (run1)
-   ✅ 0.0113s | ΔMem +0.011 GB
+   ✅ 0.0110s | ΔMem +0.005 GB
 ⏱️  [NoArrow] NumPy complex DAG (run2)
-   ✅ 0.0115s | ΔMem +0.000 GB
+   ✅ 0.0105s | ΔMem +0.000 GB
 ⏱️  [NoArrow] Numba complex DAG (run1)
    ✅ 0.0006s | ΔMem +0.000 GB
 ⏱️  [NoArrow] Numba complex DAG (run2)
    ✅ 0.0005s | ΔMem +0.000 GB
 ⏱️  [NoArrow] Numbox complex DAG (run1)
-   ✅ 0.2895s | ΔMem +0.001 GB
+   ✅ 0.2530s | ΔMem +0.002 GB
 ⏱️  [NoArrow] Numbox complex DAG (run2)
-   ✅ 0.2533s | ΔMem +0.001 GB
+   ✅ 0.2863s | ΔMem +0.003 GB
 
 ============================================================
 🏁 NUMBOX DAG DEMO RESULTS
 ============================================================
 Conversion times:
-   Spark→pandas (Arrow):   0.4814s
-   Spark→pandas (NoArrow): 5.7447s
-   🏹 Arrow speedup:        11.9x
+   Spark→pandas (Arrow):   0.4079s
+   Spark→pandas (NoArrow): 5.6998s
+   🏹 Arrow speedup:        14.0x
 
 [Arrow] compute:
-   pandas:         0.0104s
+   pandas:         0.0103s
    prep numpy:     0.0001s
-   numpy:          0.0043s
+   numpy:          0.0045s
    numba:          0.0004s
-   numbox (DAG):   0.2372s
-   numpy DAG:      run1=0.0107s  run2=0.0107s
-   numba DAG:      run1=0.0006s  run2=0.0005s
-   numbox DAG:     run1=0.2860s  run2=0.2564s
+   numbox (DAG):   0.2362s
+   numpy DAG:      run1=0.0111s  run2=0.0103s
+   numba DAG:      run1=0.0006s  run2=0.0006s
+   numbox DAG:     run1=0.2483s  run2=0.2844s
 
 [NoArrow] compute:
-   pandas:         0.0088s
+   pandas:         0.0079s
    prep numpy:     0.0001s
-   numpy:          0.0037s
+   numpy:          0.0036s
    numba:          0.0004s
-   numbox (DAG):   0.2786s
-   numpy DAG:      run1=0.0113s  run2=0.0115s
+   numbox (DAG):   0.2728s
+   numpy DAG:      run1=0.0110s  run2=0.0105s
    numba DAG:      run1=0.0006s  run2=0.0005s
-   numbox DAG:     run1=0.2895s  run2=0.2533s
+   numbox DAG:     run1=0.2530s  run2=0.2863s
 
 🔗 Framework: Numbox - see https://github.com/Goykhman/numbox
 
