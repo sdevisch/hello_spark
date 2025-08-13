@@ -15,6 +15,12 @@ __pycache__/
 *.so
 .pytest_cache/
 
+# Python build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
 # IDE specific
 .vscode/
 .idea/
@@ -41,6 +47,9 @@ logs/
 *.tmp
 *.temp
 
+# Generic caches
+.cache/
+
 # Dependency directories
 lib_managed/
 src_managed/
@@ -50,3 +59,38 @@ src_managed/
 !project/bootstrap/
 
 .venv311/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.virtualenv/
+.pythonenv/
+.python-version
+
+# Test coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Type checker / linter caches
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.pyre/
+.nox/
+.tox/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Pip metadata
+pip-wheel-metadata/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Local env files
+.env
+.env.*
