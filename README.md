@@ -118,6 +118,23 @@ This repo is organized to read “last page first”: start from framework choic
 5. Basics (optional background)
    - Read: `docs/05_basics.md`
 
+## End-to-End test runner
+
+Use the provided script to run an end-to-end check of the repository examples.
+
+```bash
+# Minimal smoke test (recommended first run)
+FAST=1 bash scripts/run_e2e.sh
+
+# Full run (will take longer)
+bash scripts/run_e2e.sh
+```
+
+Notes:
+- Requires Java 8 or 11 on PATH for Spark to start.
+- Python uses `pyspark==3.3.4` to align with Spark 3.3; install via `requirements.txt`.
+- The script also tries to run the Scala example if `sbt` is available.
+
 Notes:
 - Some scripts size datasets based on available RAM and may take several minutes.
 - Arrow optimizations require `pyarrow` (included in `requirements.txt`).

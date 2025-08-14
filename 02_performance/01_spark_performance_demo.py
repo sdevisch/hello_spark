@@ -292,11 +292,10 @@ class PerformanceBenchmark:
         
         df = self.generate_sample_data(300000)
         
-        # Test different storage levels
+        # Test different storage levels (avoid *_SER variants for compatibility)
         storage_levels = [
             ("MEMORY_ONLY", StorageLevel.MEMORY_ONLY),
             ("MEMORY_AND_DISK", StorageLevel.MEMORY_AND_DISK),
-            ("MEMORY_ONLY_SER", StorageLevel.MEMORY_ONLY_SER),
             ("DISK_ONLY", StorageLevel.DISK_ONLY)
         ]
         
@@ -339,7 +338,7 @@ class PerformanceBenchmark:
         print(f"\n💡 Tips:")
         print(f"   - MEMORY_ONLY: Fastest but may cause OOM")
         print(f"   - MEMORY_AND_DISK: Good balance (recommended)")
-        print(f"   - MEMORY_ONLY_SER: Slower but saves memory")
+        # SERIALIZED variants omitted for cross-version compatibility
         print(f"   - DISK_ONLY: Slowest but handles large datasets")
 
     def run_all_demos(self):
