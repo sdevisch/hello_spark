@@ -2,9 +2,10 @@ import io
 import os
 import sys
 from datetime import datetime
+from typing import Optional
 
 
-def _infer_scope(markdown_path: str) -> str | None:
+def _infer_scope(markdown_path: str) -> Optional[str]:
     base = os.path.basename(markdown_path)
     # Frameworks
     if base.startswith("01_frameworks_conclusion"):
@@ -48,7 +49,7 @@ def run_and_save_markdown(markdown_path: str, title: str, main_callable) -> None
     buffer = io.StringIO()
     sys.stdout = buffer
     sys.stderr = buffer
-    error: Exception | None = None
+    error: Optional[Exception] = None
 
     try:
         # Ensure project root is importable for utils.* imports in scripts
