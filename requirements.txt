@@ -1,6 +1,5 @@
 # Apache Spark dependencies for Python
-pyspark==3.5.0
-py4j>=0.10.9.7
+pyspark==3.3.4
 
 # Optional: For Jupyter notebook support
 jupyter>=1.0.0
