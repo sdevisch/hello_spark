@@ -63,6 +63,7 @@ src_managed/
 # Virtual environments
 .venv/
 venv/
+venv311/
 env/
 ENV/
 .virtualenv/
