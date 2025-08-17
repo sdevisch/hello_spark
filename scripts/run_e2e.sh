@@ -72,10 +72,30 @@ echo "\n==> Python suite completed successfully"
 
 if [[ "${RUN_SCALA:-0}" == "1" ]]; then
   if command -v sbt >/dev/null 2>&1; then
-    echo "\n==> Running Scala example via SBT"
-    sbt -v "runMain HelloWorldSpark" | cat || echo "Scala HelloWorld failed; continuing"
+    JAVA_11_PATH="$([ -x /usr/libexec/java_home ] && /usr/libexec/java_home -v 11 2>/dev/null || echo "")"
+    SBT_JAVA_HOME_ARG=()
+    if [[ -n "$JAVA_11_PATH" ]]; then
+      echo "==> Using Java 11 for Scala runs: $JAVA_11_PATH"
+      SBT_JAVA_HOME_ARG=( -java-home "$JAVA_11_PATH" )
+    else
+      echo "==> Java 11 not found; proceeding with default Java"
+    fi
+
+    echo "\n==> Running Scala HelloWorld via SBT"
+    sbt "${SBT_JAVA_HOME_ARG[@]}" -v "runMain HelloWorldSpark" | cat || echo "Scala HelloWorld failed; continuing"
+
     echo "\n==> Running Scala withColumn vs select comparison"
-    FAST=1 sbt -v "runMain WithColumnVsSelectScala --sizes 100k,300k" | cat || echo "Scala comparison failed; continuing"
+    if command -v spark-submit >/dev/null 2>&1; then
+      echo "==> Building assembly JAR for spark-submit"
+      sbt "${SBT_JAVA_HOME_ARG[@]}" -v assembly | cat || echo "Assembly failed; falling back to sbt run"
+      if [[ -f target/scala-2.12/HelloWorldSpark-assembly-1.0.jar ]]; then
+        FAST=1 spark-submit --class WithColumnVsSelectScala target/scala-2.12/HelloWorldSpark-assembly-1.0.jar --sizes 100k,300k | cat || echo "spark-submit comparison failed; continuing"
+      else
+        FAST=1 sbt "${SBT_JAVA_HOME_ARG[@]}" -v "runMain WithColumnVsSelectScala --sizes 100k,300k" | cat || echo "Scala comparison failed; continuing"
+      fi
+    else
+      FAST=1 sbt "${SBT_JAVA_HOME_ARG[@]}" -v "runMain WithColumnVsSelectScala --sizes 100k,300k" | cat || echo "Scala comparison failed; continuing"
+    fi
   else
     echo "\n==> SBT not found; skipping Scala example"
   fi

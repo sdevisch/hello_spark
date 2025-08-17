@@ -26,15 +26,18 @@ object WithColumnVsSelectScala {
   }
 
   private def selectCombined(df: DataFrame): DataFrame = {
-    val c = (col("a") * 2 + 1).as("c")
-    val dExpr = (col("b") * (col("a") * 2 + 1))
-    val d = dExpr.as("d")
-    val e = when(dExpr % 3 === 0, dExpr + 7).otherwise(dExpr - 7).as("e")
-    val f = (col("e") * 3 + col("a")).as("f")
-    val g = (col("f") - col("b")).as("g")
-    val h = (col("g") * 2).as("h")
-    val j = ((col("h") + lit(42)) % 97).as("j")
-    df.select(col("id"), col("a"), col("b"), c, d, e, f, g, h, j)
+    // Build expression tree once; alias only at the end to avoid unresolved intermediate names
+    val cExpr = (col("a") * 2 + 1)
+    val dExpr = (col("b") * cExpr)
+    val eExpr = when(dExpr % 3 === 0, dExpr + 7).otherwise(dExpr - 7)
+    val fExpr = (eExpr * 3 + col("a"))
+    val gExpr = (fExpr - col("b"))
+    val hExpr = (gExpr * 2)
+    val jExpr = ((hExpr + lit(42)) % 97)
+    df.select(
+      col("id"), col("a"), col("b"),
+      cExpr.as("c"), dExpr.as("d"), eExpr.as("e"), fExpr.as("f"), gExpr.as("g"), hExpr.as("h"), jExpr.as("j")
+    )
   }
 
   private def timeIt[T](label: String)(block: => T): (T, Double) = {
