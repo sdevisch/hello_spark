@@ -86,11 +86,17 @@ if [[ "${RUN_SCALA:-0}" == "1" ]]; then
 
     echo "\n==> Running Scala withColumn vs select comparison"
     if command -v spark-submit >/dev/null 2>&1; then
-      echo "==> Building assembly JAR for spark-submit"
-      sbt "${SBT_JAVA_HOME_ARG[@]}" -v assembly | cat || echo "Assembly failed; falling back to sbt run"
-      if [[ -f target/scala-2.12/HelloWorldSpark-assembly-1.0.jar ]]; then
-        FAST=1 spark-submit --class WithColumnVsSelectScala target/scala-2.12/HelloWorldSpark-assembly-1.0.jar --sizes 100k,300k | cat || echo "spark-submit comparison failed; continuing"
+      SPARK_SUBMIT_VER=$(spark-submit --version 2>&1 | head -n 1 | awk '{print $NF}')
+      if [[ "$SPARK_SUBMIT_VER" == 3.* ]]; then
+        echo "==> Detected spark-submit $SPARK_SUBMIT_VER (compatible). Building assembly JAR"
+        sbt "${SBT_JAVA_HOME_ARG[@]}" -v assembly | cat || echo "Assembly failed; falling back to sbt run"
+        if [[ -f target/scala-2.12/HelloWorldSpark-assembly-1.0.jar ]]; then
+          FAST=1 spark-submit --class WithColumnVsSelectScala target/scala-2.12/HelloWorldSpark-assembly-1.0.jar --sizes 100k,300k | cat || echo "spark-submit comparison failed; continuing"
+        else
+          FAST=1 sbt "${SBT_JAVA_HOME_ARG[@]}" -v "runMain WithColumnVsSelectScala --sizes 100k,300k" | cat || echo "Scala comparison failed; continuing"
+        fi
       else
+        echo "==> spark-submit $SPARK_SUBMIT_VER is not Spark 3.x; using sbt run instead"
         FAST=1 sbt "${SBT_JAVA_HOME_ARG[@]}" -v "runMain WithColumnVsSelectScala --sizes 100k,300k" | cat || echo "Scala comparison failed; continuing"
       fi
     else
