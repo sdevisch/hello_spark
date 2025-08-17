@@ -73,7 +73,9 @@ echo "\n==> Python suite completed successfully"
 if [[ "${RUN_SCALA:-0}" == "1" ]]; then
   if command -v sbt >/dev/null 2>&1; then
     echo "\n==> Running Scala example via SBT"
-    sbt -v "runMain HelloWorldSpark" | cat || echo "Scala example failed; continuing Python E2E"
+    sbt -v "runMain HelloWorldSpark" | cat || echo "Scala HelloWorld failed; continuing"
+    echo "\n==> Running Scala withColumn vs select comparison"
+    FAST=1 sbt -v "runMain WithColumnVsSelectScala --sizes 100k,300k" | cat || echo "Scala comparison failed; continuing"
   else
     echo "\n==> SBT not found; skipping Scala example"
   fi
