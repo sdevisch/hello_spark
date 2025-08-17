@@ -53,6 +53,7 @@ else
   # 02_performance
   run_py 02_performance/01_spark_performance_demo.py
   run_py 02_performance/02_spark_data_types_performance.py
+  run_py 02_performance/03_withcolumn_vs_select.py
 
   # 03_serialization
   run_py 03_serialization/00_observe_serialization.py

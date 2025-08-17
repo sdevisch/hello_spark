@@ -70,6 +70,7 @@ This repo is organized to read “last page first”: start from framework choic
 - `02_performance/`
   - `01_spark_performance_demo.py` — I/O, UDFs, caching, partitioning, broadcast, persistence
   - `02_spark_data_types_performance.py` — Data types: correctness, right-sizing, joins
+  - `03_withcolumn_vs_select.py` — withColumn vs select: chaining cost, Arrow impact, memory
 - `03_serialization/`
   - `00_observe_serialization.py` — Use explain() and the UI to spot serialization
   - `01_python_serialization_demo.py` — Arrow vs non-Arrow; UDF impact
@@ -99,6 +100,7 @@ This repo is organized to read “last page first”: start from framework choic
    ```bash
    python 02_performance/01_spark_performance_demo.py
    python 02_performance/02_spark_data_types_performance.py
+   python 02_performance/03_withcolumn_vs_select.py
    ```
 3. Serialization fundamentals
    - Read: `docs/03_serialization.md`
