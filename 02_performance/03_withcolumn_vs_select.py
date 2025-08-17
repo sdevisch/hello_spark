@@ -96,41 +96,64 @@ class WithColumnVsSelectBenchmark:
         print(f"{name} | rows={rows:,} | arrow={arrow_enabled} | time={duration:.2f}s | rssΔ={rss_delta_mb:.2f}MB")
         return ScenarioResult(name=name, arrow_enabled=arrow_enabled, rows=rows, duration_seconds=duration, rss_delta_mb=rss_delta_mb)
 
-    def run(self, rows: int) -> List[ScenarioResult]:
+    def run_multiple(self, row_sizes: List[int]) -> List[ScenarioResult]:
         print("\n=== withColumn vs select: performance and memory ===")
         print(f"Spark version: {self.spark.version}")
-        print(f"Rows: {rows:,}")
+        print(f"Row sizes: {[format(s, ',') for s in row_sizes]}")
 
-        results: List[ScenarioResult] = []
+        all_results: List[ScenarioResult] = []
+        for rows in row_sizes:
+            print(f"\n--- Running scenarios for rows={rows:,} ---")
+            # 1) withColumn chain without Arrow
+            all_results.append(self._measure("withColumn_chain -> toPandas", False, self._withcolumn_chain, rows))
 
-        # 1) withColumn chain without Arrow
-        results.append(self._measure("withColumn_chain -> toPandas", False, self._withcolumn_chain, rows))
+            # 2) withColumn chain with Arrow
+            all_results.append(self._measure("withColumn_chain -> toPandas", True, self._withcolumn_chain, rows))
 
-        # 2) withColumn chain with Arrow
-        results.append(self._measure("withColumn_chain -> toPandas", True, self._withcolumn_chain, rows))
+            # 3) select-combined with Arrow
+            all_results.append(self._measure("select_combined -> toPandas", True, self._select_combined, rows))
 
-        # 3) select-combined with Arrow
-        results.append(self._measure("select_combined -> toPandas", True, self._select_combined, rows))
-
-        # 4) Optional: select-combined without Arrow (for completeness)
-        results.append(self._measure("select_combined -> toPandas", False, self._select_combined, rows))
+            # 4) Optional: select-combined without Arrow (for completeness)
+            all_results.append(self._measure("select_combined -> toPandas", False, self._select_combined, rows))
 
         print("\nSummary:")
         print(f"{'Scenario':<32} {'Arrow':<7} {'Rows':>10} {'Time (s)':>10} {'RSS Δ (MB)':>12}")
         print("-" * 80)
-        for r in results:
+        for r in all_results:
             print(f"{r.name:<32} {str(r.arrow_enabled):<7} {r.rows:>10,} {r.duration_seconds:>10.2f} {r.rss_delta_mb:>12.2f}")
 
-        return results
+        return all_results
+
+
+def _parse_sizes_from_env(default_sizes: List[int]) -> List[int]:
+    raw = os.environ.get("SIZES")
+    if not raw:
+        return default_sizes
+    sizes: List[int] = []
+    for token in raw.split(","):
+        token = token.strip()
+        if not token:
+            continue
+        try:
+            if token.lower().endswith("k"):
+                sizes.append(int(float(token[:-1]) * 1_000))
+            elif token.lower().endswith("m"):
+                sizes.append(int(float(token[:-1]) * 1_000_000))
+            else:
+                sizes.append(int(float(token)))
+        except ValueError:
+            continue
+    return sizes or default_sizes
 
 
 def main() -> None:
     fast = os.environ.get("FAST", "0") == "1"
-    # Keep FAST small to avoid long runs in CI/e2e
-    rows = 100_000 if fast else 2_000_000
+    # FAST defaults vs full defaults
+    default_sizes = [100_000, 300_000] if fast else [500_000, 1_000_000, 2_000_000]
+    sizes = _parse_sizes_from_env(default_sizes)
     bench = WithColumnVsSelectBenchmark()
     try:
-        bench.run(rows)
+        bench.run_multiple(sizes)
     finally:
         bench.spark.stop()
 

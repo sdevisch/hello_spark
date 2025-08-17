@@ -37,7 +37,7 @@ Compare expressing multiple transformations as chained `.withColumn` versus a si
 - Driver RSS memory delta
 - With Arrow disabled and enabled
 
-Run:
+Run (supports multiple sizes via `SIZES`, e.g. `SIZES=100k,500k,1m`):
 
 ```bash
 # FAST mode (recommended)
@@ -45,6 +45,8 @@ FAST=1 python 02_performance/03_withcolumn_vs_select.py
 
 # Full run
 python 02_performance/03_withcolumn_vs_select.py
+# e.g. custom sizes
+SIZES=200k,1m,2m python 02_performance/03_withcolumn_vs_select.py
 ```
 
 Generated output (when building docs) is saved to `docs/generated/perf_03_withcolumn_vs_select.md`.
