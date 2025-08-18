@@ -1,49 +1,29 @@
 #!/usr/bin/env python3
 """
-withColumn vs select: chaining cost, Arrow impact, and memory
-============================================================
+withColumn vs select: JVM compute comparison only
+=================================================
 
-This script compares performance and memory usage for:
-- Chained .withColumn transformations ending with toPandas()
-- The same logic expressed via a single .select() call
+Clean, reproducible comparison of:
+- Chained `.withColumn` transformations
+- A single `.select` projection expressing the same logic
 
-Each scenario is measured with Arrow disabled and enabled where relevant.
-We report wall-clock time and driver RSS memory delta for a rough comparison.
+Measured using a JVM-only action that depends on the final derived column
+(aggregate sum), so all transformations execute. No pandas/Arrow involved.
 """
 
 from __future__ import annotations
 
 import os
 import time
-from dataclasses import dataclass
-import subprocess
-import shutil
-from pathlib import Path
-from typing import Callable, Dict, List, Tuple
-
-import psutil
+from typing import Callable
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
 from pyspark.sql.functions import col, lit, when
-
-
-@dataclass
-class ScenarioResult:
-    name: str
-    arrow_enabled: bool
-    rows: int
-    duration_seconds: float
-    rss_delta_mb: float
 
 
 class WithColumnVsSelectBenchmark:
     def __init__(self, app_name: str = "WithColumnVsSelectBenchmark") -> None:
-        self.spark = (
-            SparkSession.builder.appName(app_name)
-            .master("local[*]")
-            # Keep Arrow default; we toggle per scenario
-            .config("spark.sql.adaptive.enabled", "true")
-            .getOrCreate()
-        )
+        self.spark = SparkSession.builder.appName(app_name).master("local[*]").getOrCreate()
         self.spark.sparkContext.setLogLevel("WARN")
 
     def _generate_df(self, num_rows: int) -> DataFrame:
@@ -55,77 +35,48 @@ class WithColumnVsSelectBenchmark:
         return df
 
     def _withcolumn_chain(self, df: DataFrame) -> DataFrame:
-        # Apply a series of dependent column transformations
         result = df
         result = result.withColumn("c", col("a") * 2 + 1)
         result = result.withColumn("d", col("b") * col("c"))
         result = result.withColumn("e", when(col("d") % 3 == 0, col("d") + 7).otherwise(col("d") - 7))
-        result = result.withColumn("f", (col("e") * 3 + col("a")).alias("f"))
-        result = result.withColumn("g", (col("f") - col("b")).alias("g"))
-        result = result.withColumn("h", (col("g") * 2).alias("h"))
-        result = result.withColumn("i", (col("h") + lit(42)).alias("i"))
-        result = result.withColumn("j", (col("i") % 97).alias("j"))
-        return result.select("id", "a", "b", "c", "d", "e", "f", "g", "h", "j")
+        result = result.withColumn("f", col("e") * 3 + col("a"))
+        result = result.withColumn("g", col("f") - col("b"))
+        result = result.withColumn("h", col("g") * 2)
+        result = result.withColumn("i", col("h") + lit(42))
+        result = result.withColumn("j", col("i") * 31 + lit(7))
+        return result.select("id", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j")
 
     def _select_combined(self, df: DataFrame) -> DataFrame:
-        # Compute final columns using a single select expression block
         c = (col("a") * 2 + 1).alias("c")
         d = (col("b") * (col("a") * 2 + 1)).alias("d")
-        e = when((col("b") * (col("a") * 2 + 1)) % 3 == 0, (col("b") * (col("a") * 2 + 1)) + 7).otherwise(
-            (col("b") * (col("a") * 2 + 1)) - 7
-        ).alias("e")
+        e = when(d % 3 == 0, d + 7).otherwise(d - 7).alias("e")
         f = (e * 3 + col("a")).alias("f")
         g = (f - col("b")).alias("g")
         h = (g * 2).alias("h")
-        j = ((h + lit(42)) % 97).alias("j")
-        return df.select("id", "a", "b", c, d, e, f, g, h, j)
+        i = (h + lit(42)).alias("i")
+        j = (i * 31 + lit(7)).alias("j")
+        return df.select("id", "a", "b", c, d, e, f, g, h, i, j)
 
-    def _measure(self, name: str, arrow_enabled: bool, df_fn: Callable[[DataFrame], DataFrame], rows: int) -> ScenarioResult:
-        # Toggle Arrow (affects toPandas)
-        self.spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true" if arrow_enabled else "false")
-
+    def _measure(self, label: str, df_fn: Callable[[DataFrame], DataFrame], rows: int) -> float:
         base_df = self._generate_df(rows)
-        proc = psutil.Process(os.getpid())
-        rss_before = proc.memory_info().rss
-        start_time = time.time()
+        df = df_fn(base_df)
+        start = time.time()
+        _ = df.agg(F.sum(F.col("j"))).collect()
+        elapsed = time.time() - start
+        print(f"{label} | rows={rows:,} | action=sum(j) | time={elapsed:.2f}s")
+        return elapsed
 
-        # Force materialization by converting to pandas (to exercise Arrow) and summing a column
-        pandas_df = df_fn(base_df).toPandas()
-        _ = pandas_df["j"].sum()
-
-        duration = time.time() - start_time
-        rss_after = proc.memory_info().rss
-        rss_delta_mb = (rss_after - rss_before) / (1024 * 1024)
-        print(f"{name} | rows={rows:,} | arrow={arrow_enabled} | time={duration:.2f}s | rssΔ={rss_delta_mb:.2f}MB")
-        return ScenarioResult(name=name, arrow_enabled=arrow_enabled, rows=rows, duration_seconds=duration, rss_delta_mb=rss_delta_mb)
-
-    def run_multiple(self, row_sizes: List[int]) -> List[ScenarioResult]:
-        print("\n=== withColumn vs select: performance and memory ===")
+    def run_multiple(self, row_sizes: List[int]) -> None:
+        print("\n=== withColumn vs select: JVM compute (agg sum of last column) ===")
         print(f"Spark version: {self.spark.version}")
         print(f"Row sizes: {[format(s, ',') for s in row_sizes]}")
-
-        all_results: List[ScenarioResult] = []
         for rows in row_sizes:
             print(f"\n--- Running scenarios for rows={rows:,} ---")
-            # 1) withColumn chain without Arrow
-            all_results.append(self._measure("withColumn_chain -> toPandas", False, self._withcolumn_chain, rows))
-
-            # 2) withColumn chain with Arrow
-            all_results.append(self._measure("withColumn_chain -> toPandas", True, self._withcolumn_chain, rows))
-
-            # 3) select-combined with Arrow
-            all_results.append(self._measure("select_combined -> toPandas", True, self._select_combined, rows))
-
-            # 4) Optional: select-combined without Arrow (for completeness)
-            all_results.append(self._measure("select_combined -> toPandas", False, self._select_combined, rows))
-
-        print("\nSummary:")
-        print(f"{'Scenario':<32} {'Arrow':<7} {'Rows':>10} {'Time (s)':>10} {'RSS Δ (MB)':>12}")
-        print("-" * 80)
-        for r in all_results:
-            print(f"{r.name:<32} {str(r.arrow_enabled):<7} {r.rows:>10,} {r.duration_seconds:>10.2f} {r.rss_delta_mb:>12.2f}")
-
-        return all_results
+            t_with = self._measure("withColumn_chain", self._withcolumn_chain, rows)
+            t_sel = self._measure("select_combined", self._select_combined, rows)
+            speedup = (t_with / t_sel) if t_sel > 0 else float('inf')
+            print(f"Summary | rows={rows:,} | withColumn_chain={t_with:.2f}s | select_combined={t_sel:.2f}s | speedup={speedup:.1f}x")
+        print("\nDone.")
 
 
 def _parse_sizes_from_env(default_sizes: List[int]) -> List[int]:
@@ -157,29 +108,6 @@ def main() -> None:
     bench = WithColumnVsSelectBenchmark()
     try:
         bench.run_multiple(sizes)
-
-        # Optional: also run Scala comparison and include its console output in docs
-        run_scala = os.environ.get("RUN_SCALA", "0") == "1" or os.environ.get("GENERATE_DOCS", "0") == "1"
-        if run_scala:
-            print("\n=== Scala comparison (withColumn vs select) ===")
-            repo_root = Path(__file__).resolve().parents[1]
-            java_home_11 = None
-            try:
-                proc = subprocess.run(["/usr/libexec/java_home", "-v", "11"], capture_output=True, text=True)
-                if proc.returncode == 0:
-                    java_home_11 = proc.stdout.strip()
-            except Exception:
-                pass
-
-            sbt_cmd: list[str] = ["sbt"]
-            if java_home_11:
-                sbt_cmd.extend(["-java-home", java_home_11])
-            sizes_str = ",".join(str(s) for s in sizes)
-            sbt_cmd.extend(["-v", f"runMain WithColumnVsSelectScala --sizes {sizes_str}"])
-            try:
-                subprocess.run(sbt_cmd, cwd=str(repo_root), check=False)
-            except FileNotFoundError:
-                print("sbt not found; skipping Scala comparison")
     finally:
         bench.spark.stop()
 
@@ -195,7 +123,7 @@ if __name__ == "__main__":
 
         run_and_save_markdown(
             markdown_path="docs/generated/perf_03_withcolumn_vs_select.md",
-            title="Performance 03: withColumn vs select (Arrow on/off, time and memory)",
+            title="Performance 03: withColumn vs select (JVM compute only)",
             main_callable=main,
         )
     else:

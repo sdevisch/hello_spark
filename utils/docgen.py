@@ -20,6 +20,12 @@ def _infer_scope(markdown_path: str) -> Optional[str]:
     if base.startswith("04_numbox_dag_demo") or base.startswith("05_numbox_dynamic_dag_demo"):
         return "Appendix: niche DAG structuring (Numbox) for specialized scenarios."
     # Performance
+    # Specific perf files first
+    if base.startswith("perf_03_withcolumn_vs_select"):
+        return (
+            "withColumn vs select: JVM compute only; no pandas/Arrow; materialized via "
+            "aggregate sum of the last derived column."
+        )
     if base.startswith("perf_"):
         return (
             "Cross-cutting performance practices: IO formats, UDF vs native, caching, "
