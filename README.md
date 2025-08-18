@@ -165,6 +165,18 @@ Notes:
    spark-submit target/scala-2.12/HelloWorldSpark-assembly-1.0.jar
    ```
 
+### Scala vs Python comparison (withColumn vs select)
+
+A Scala port of the withColumn/select benchmark is available to compare overheads:
+
+```bash
+# Run Scala comparison (FAST mode by default via env)
+FAST=1 sbt "runMain WithColumnVsSelectScala --sizes 100k,300k"
+
+# Full run
+sbt "runMain WithColumnVsSelectScala --sizes 500k,1m,2m"
+```
+
 ## What the examples demonstrate
 
 Across the path you will see:

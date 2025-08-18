@@ -16,6 +16,9 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
+import subprocess
+import shutil
+from pathlib import Path
 from typing import Callable, Dict, List, Tuple
 
 import psutil
@@ -154,6 +157,29 @@ def main() -> None:
     bench = WithColumnVsSelectBenchmark()
     try:
         bench.run_multiple(sizes)
+
+        # Optional: also run Scala comparison and include its console output in docs
+        run_scala = os.environ.get("RUN_SCALA", "0") == "1" or os.environ.get("GENERATE_DOCS", "0") == "1"
+        if run_scala:
+            print("\n=== Scala comparison (withColumn vs select) ===")
+            repo_root = Path(__file__).resolve().parents[1]
+            java_home_11 = None
+            try:
+                proc = subprocess.run(["/usr/libexec/java_home", "-v", "11"], capture_output=True, text=True)
+                if proc.returncode == 0:
+                    java_home_11 = proc.stdout.strip()
+            except Exception:
+                pass
+
+            sbt_cmd: list[str] = ["sbt"]
+            if java_home_11:
+                sbt_cmd.extend(["-java-home", java_home_11])
+            sizes_str = ",".join(str(s) for s in sizes)
+            sbt_cmd.extend(["-v", f"runMain WithColumnVsSelectScala --sizes {sizes_str}"])
+            try:
+                subprocess.run(sbt_cmd, cwd=str(repo_root), check=False)
+            except FileNotFoundError:
+                print("sbt not found; skipping Scala comparison")
     finally:
         bench.spark.stop()
 
